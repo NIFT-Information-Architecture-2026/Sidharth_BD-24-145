@@ -12,7 +12,7 @@
 </head>
 <body>
 
-  <!-- Top Retro-Arcade Header (Auto-hiding / Minimalist) -->
+  <!-- Top Retro-Arcade Header -->
   <header id="top-bar" class="retro-window-header">
     <div class="window-title-group">
       <div class="window-dots">
@@ -25,15 +25,21 @@
 
     <!-- Workspace Mode Switcher -->
     <div class="mode-switcher-container">
-      <button class="mode-btn active" data-mode="zen">ZEN MODE</button>
+      <button class="mode-btn active" data-mode="zen">ZEN CANVAS</button>
       <button class="mode-btn" data-mode="studio">PRO STUDIO</button>
       <button class="mode-btn" data-mode="anim">ANIMATION</button>
     </div>
 
     <!-- Top Utility Controls -->
     <div class="header-actions">
+      <!-- Active Tool Badge -->
+      <div id="active-tool-badge" class="active-tool-indicator">
+        <span id="active-tool-icon">✏️</span>
+        <span id="active-tool-name">PENCIL</span>
+      </div>
+
       <!-- Font Switcher -->
-      <button id="font-toggle-btn" class="retro-btn" title="Toggle Swiss / 8-Bit Typography">
+      <button id="font-toggle-btn" class="retro-btn" title="Toggle Swiss (Helvetica) / 8-Bit Typography">
         <span class="btn-icon">🔤</span> <span id="font-label">FONT: HELVETICA</span>
       </button>
 
@@ -42,12 +48,8 @@
         <span class="btn-icon">🎨</span> THEME
       </button>
 
-      <!-- Undo / Redo -->
-      <button id="undo-btn" class="retro-btn" title="Undo (Ctrl+Z)">↶</button>
-      <button id="redo-btn" class="retro-btn" title="Redo (Ctrl+Y)">↷</button>
-
       <!-- Clear Canvas -->
-      <button id="clear-btn" class="retro-btn danger" title="Clear Canvas">🗑️</button>
+      <button id="clear-btn" class="retro-btn danger" title="Clear Canvas">🗑️ CLEAR</button>
     </div>
   </header>
 
@@ -75,7 +77,7 @@
       </div>
 
       <div class="setting-row">
-        <label>CANVAS TEXTURE / GRID:</label>
+        <label>CANVAS GRID TEXTURE:</label>
         <button id="grid-toggle-btn" class="retro-btn small">GRID: OFF</button>
       </div>
     </div>
@@ -86,91 +88,91 @@
     <canvas id="onion-canvas"></canvas>
     <canvas id="drawing-canvas"></canvas>
 
-    <!-- Floating HUD Trigger for Touch / Mouse-only users -->
+    <!-- Floating HUD Summon Pill (Click or Hold Space) -->
     <button id="hud-summon-btn" class="hud-pill-trigger">
-      <span>⚡ HOLD SPACE OR CLICK FOR HUD</span>
+      <span>⚡ HOLD SPACE OR RIGHT-CLICK FOR RADIAL HUD</span>
     </button>
+
+    <!-- On-Demand Gaming Radial HUD (Inside Viewport for 1:1 Coords) -->
+    <div id="radial-hud" class="radial-hud-container hidden">
+      <div class="hud-backdrop-glass"></div>
+
+      <!-- Center Reticle & Active Brush Preview -->
+      <div class="hud-center-core">
+        <div id="hud-reticle-needle" class="hud-reticle-arrow"></div>
+        <div class="hud-center-preview">
+          <div id="center-tip-preview" class="brush-tip-circle"></div>
+        </div>
+      </div>
+
+      <!-- 8 Radial Tool Slices (Equidistant Polar Layout) -->
+      <div class="hud-dial-ring">
+        <button class="hud-slice active" data-tool="pencil" data-angle="270" data-label="2B GRAPHITE PENCIL">
+          <span class="slice-icon">✏️</span>
+          <span class="slice-tag">PENCIL</span>
+        </button>
+        <button class="hud-slice" data-tool="ink" data-angle="315" data-label="INK NIB (FOUNTAIN)">
+          <span class="slice-icon">✒️</span>
+          <span class="slice-tag">INK</span>
+        </button>
+        <button class="hud-slice" data-tool="eraser" data-angle="0" data-label="PRECISION ERASER">
+          <span class="slice-icon">🧹</span>
+          <span class="slice-tag">ERASE</span>
+        </button>
+        <button class="hud-slice" data-tool="color" data-angle="45" data-label="COLOR PICKER">
+          <span class="slice-icon">🎨</span>
+          <span class="slice-tag">COLOR</span>
+        </button>
+        <button class="hud-slice" data-tool="timeline" data-angle="90" data-label="2D ANIMATION TIMELINE">
+          <span class="slice-icon">🎞️</span>
+          <span class="slice-tag">ANIM</span>
+        </button>
+        <button class="hud-slice" data-tool="smudge" data-angle="135" data-label="BLENDER / SMUDGE">
+          <span class="slice-icon">💧</span>
+          <span class="slice-tag">SMUDGE</span>
+        </button>
+        <button class="hud-slice" data-tool="paint" data-angle="180" data-label="ACRYLIC & OIL PAINT">
+          <span class="slice-icon">🖌️</span>
+          <span class="slice-tag">PAINT</span>
+        </button>
+        <button class="hud-slice" data-tool="charcoal" data-angle="225" data-label="SOFT CHARCOAL">
+          <span class="slice-icon">🖍️</span>
+          <span class="slice-tag">CHARCOAL</span>
+        </button>
+      </div>
+
+      <!-- Bottom Dynamic Status Readout -->
+      <div class="hud-bottom-chip">
+        <span id="hud-readout-title" class="hud-chip-title">2B GRAPHITE PENCIL</span>
+        <div class="hud-chip-stats">
+          <span id="hud-size-display">SIZE: 12px</span>
+          <span class="chip-divider">|</span>
+          <span id="hud-opacity-display">OPACITY: 90%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Floating Sliders for Size & Opacity -->
+    <aside id="floating-sliders" class="retro-slider-dock hidden">
+      <div class="slider-group">
+        <label>SIZE:</label>
+        <input type="range" id="size-slider" min="2" max="60" value="12">
+        <span id="size-val">12</span>
+      </div>
+      <div class="slider-group">
+        <label>OPACITY:</label>
+        <input type="range" id="opacity-slider" min="10" max="100" value="90">
+        <span id="opacity-val">90%</span>
+      </div>
+      <div class="slider-group color-quick-pick">
+        <label>COLOR:</label>
+        <input type="color" id="brush-color-picker" value="#111111">
+      </div>
+    </aside>
   </main>
 
-  <!-- On-Demand Gaming Radial HUD (Prototype Inspired) -->
-  <div id="radial-hud" class="radial-hud-container hidden">
-    <div class="hud-backdrop-glass"></div>
-
-    <!-- Center Reticle & Active Brush Preview -->
-    <div class="hud-center-core">
-      <div id="hud-reticle-needle" class="hud-reticle-arrow"></div>
-      <div class="hud-center-preview">
-        <div id="center-tip-preview" class="brush-tip-circle"></div>
-      </div>
-    </div>
-
-    <!-- 8 Radial Tool Slices (Equidistant Polar Layout) -->
-    <div class="hud-dial-ring">
-      <button class="hud-slice active" data-tool="pencil" data-angle="270" data-label="2B GRAPHITE PENCIL">
-        <span class="slice-icon">✏️</span>
-        <span class="slice-tag">PENCIL</span>
-      </button>
-      <button class="hud-slice" data-tool="ink" data-angle="315" data-label="INK NIB (FOUNTAIN)">
-        <span class="slice-icon">✒️</span>
-        <span class="slice-tag">INK</span>
-      </button>
-      <button class="hud-slice" data-tool="eraser" data-angle="0" data-label="PRECISION ERASER">
-        <span class="slice-icon">🧹</span>
-        <span class="slice-tag">ERASE</span>
-      </button>
-      <button class="hud-slice" data-tool="color" data-angle="45" data-label="COLOR PICKER">
-        <span class="slice-icon">🎨</span>
-        <span class="slice-tag">COLOR</span>
-      </button>
-      <button class="hud-slice" data-tool="timeline" data-angle="90" data-label="2D ANIMATION TIMELINE">
-        <span class="slice-icon">🎞️</span>
-        <span class="slice-tag">ANIM</span>
-      </button>
-      <button class="hud-slice" data-tool="smudge" data-angle="135" data-label="BLENDER / SMUDGE">
-        <span class="slice-icon">💧</span>
-        <span class="slice-tag">SMUDGE</span>
-      </button>
-      <button class="hud-slice" data-tool="paint" data-angle="180" data-label="ACRYLIC & OIL PAINT">
-        <span class="slice-icon">🖌️</span>
-        <span class="slice-tag">PAINT</span>
-      </button>
-      <button class="hud-slice" data-tool="charcoal" data-angle="225" data-label="SOFT CHARCOAL">
-        <span class="slice-icon">🖍️</span>
-        <span class="slice-tag">CHARCOAL</span>
-      </button>
-    </div>
-
-    <!-- Bottom Dynamic Status Readout -->
-    <div class="hud-bottom-chip">
-      <span id="hud-readout-title" class="hud-chip-title">2B GRAPHITE PENCIL</span>
-      <div class="hud-chip-stats">
-        <span id="hud-size-display">SIZE: 12px</span>
-        <span class="chip-divider">|</span>
-        <span id="hud-opacity-display">OPACITY: 85%</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Quick Floating Sliders for Size & Opacity -->
-  <aside id="floating-sliders" class="retro-slider-dock">
-    <div class="slider-group">
-      <label>SIZE</label>
-      <input type="range" id="size-slider" min="2" max="80" value="12">
-      <span id="size-val">12</span>
-    </div>
-    <div class="slider-group">
-      <label>OPACITY</label>
-      <input type="range" id="opacity-slider" min="10" max="100" value="85">
-      <span id="opacity-val">85%</span>
-    </div>
-    <div class="slider-group color-quick-pick">
-      <label>COLOR</label>
-      <input type="color" id="brush-color-picker" value="#111111">
-    </div>
-  </aside>
-
-  <!-- Collapsible 2D Animation Timeline Dock -->
-  <footer id="animation-dock" class="retro-timeline-dock">
+  <!-- Collapsible 2D Animation Timeline Dock (Hidden by default in Zen mode) -->
+  <footer id="animation-dock" class="retro-timeline-dock collapsed">
     <div class="timeline-header">
       <div class="timeline-controls">
         <button id="anim-play-btn" class="retro-btn play-btn">▶ PLAY</button>
@@ -192,7 +194,7 @@
             <option value="24">24 FPS</option>
           </select>
         </div>
-        <button id="dock-close-btn" class="retro-btn small">✕ CLOSE</button>
+        <button id="dock-close-btn" class="retro-btn small">✕ HIDE</button>
       </div>
     </div>
 
