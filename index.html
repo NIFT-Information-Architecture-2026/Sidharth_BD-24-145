@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ArcadeFlow 2D - Open Creative & Animation Suite</title>
-  <!-- Google Fonts: Retro 8-bit Pixel & Clean Swiss Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
@@ -20,7 +19,7 @@
         <span class="dot min"></span>
         <span class="dot max"></span>
       </div>
-      <span class="app-title">⚡ ARCADE_FLOW_2D [v1.0.ora]</span>
+      <span class="app-title">⚡ ARCADE_FLOW_2D</span>
     </div>
 
     <!-- Workspace Mode Switcher -->
@@ -39,7 +38,7 @@
       </div>
 
       <!-- Font Switcher -->
-      <button id="font-toggle-btn" class="retro-btn" title="Toggle Swiss (Helvetica) / 8-Bit Typography">
+      <button id="font-toggle-btn" class="retro-btn" title="Toggle Swiss / 8-Bit Typography">
         <span class="btn-icon">🔤</span> <span id="font-label">FONT: HELVETICA</span>
       </button>
 
@@ -88,12 +87,12 @@
     <canvas id="onion-canvas"></canvas>
     <canvas id="drawing-canvas"></canvas>
 
-    <!-- Floating HUD Summon Pill (Click or Hold Space) -->
+    <!-- Floating HUD Summon Pill -->
     <button id="hud-summon-btn" class="hud-pill-trigger">
       <span>⚡ HOLD SPACE OR RIGHT-CLICK FOR RADIAL HUD</span>
     </button>
 
-    <!-- On-Demand Gaming Radial HUD (Inside Viewport for 1:1 Coords) -->
+    <!-- On-Demand Gaming Radial HUD (Inside Viewport) -->
     <div id="radial-hud" class="radial-hud-container hidden">
       <div class="hud-backdrop-glass"></div>
 
@@ -105,7 +104,7 @@
         </div>
       </div>
 
-      <!-- 8 Radial Tool Slices (Equidistant Polar Layout) -->
+      <!-- 8 Radial Tool Slices -->
       <div class="hud-dial-ring">
         <button class="hud-slice active" data-tool="pencil" data-angle="270" data-label="2B GRAPHITE PENCIL">
           <span class="slice-icon">✏️</span>
@@ -145,9 +144,9 @@
       <div class="hud-bottom-chip">
         <span id="hud-readout-title" class="hud-chip-title">2B GRAPHITE PENCIL</span>
         <div class="hud-chip-stats">
-          <span id="hud-size-display">SIZE: 12px</span>
+          <span id="hud-size-display">SIZE: 14px</span>
           <span class="chip-divider">|</span>
-          <span id="hud-opacity-display">OPACITY: 90%</span>
+          <span id="hud-opacity-display">OPACITY: 100%</span>
         </div>
       </div>
     </div>
@@ -156,13 +155,13 @@
     <aside id="floating-sliders" class="retro-slider-dock hidden">
       <div class="slider-group">
         <label>SIZE:</label>
-        <input type="range" id="size-slider" min="2" max="60" value="12">
-        <span id="size-val">12</span>
+        <input type="range" id="size-slider" min="2" max="60" value="14">
+        <span id="size-val">14</span>
       </div>
       <div class="slider-group">
         <label>OPACITY:</label>
-        <input type="range" id="opacity-slider" min="10" max="100" value="90">
-        <span id="opacity-val">90%</span>
+        <input type="range" id="opacity-slider" min="10" max="100" value="100">
+        <span id="opacity-val">100%</span>
       </div>
       <div class="slider-group color-quick-pick">
         <label>COLOR:</label>
@@ -171,7 +170,7 @@
     </aside>
   </main>
 
-  <!-- Collapsible 2D Animation Timeline Dock (Hidden by default in Zen mode) -->
+  <!-- Collapsible 2D Animation Timeline Dock -->
   <footer id="animation-dock" class="retro-timeline-dock collapsed">
     <div class="timeline-header">
       <div class="timeline-controls">
@@ -198,12 +197,637 @@
       </div>
     </div>
 
-    <!-- Frame Strip Scrubber -->
-    <div id="frame-strip" class="frame-strip-scroller">
-      <!-- Frames injected dynamically by app.js -->
-    </div>
+    <!-- Frame Strip Scroller -->
+    <div id="frame-strip" class="frame-strip-scroller"></div>
   </footer>
 
-  <script src="app.js"></script>
+  <!-- =====================================================================
+       INLINE BULLETPROOF JAVASCRIPT ENGINE (No cache issues, 100% immediate)
+       ===================================================================== -->
+  <script>
+  (function() {
+    console.log("⚡ Starting ArcadeFlow 2D Engine...");
+
+    const viewport = document.getElementById('viewport');
+    const drawingCanvas = document.getElementById('drawing-canvas');
+    const onionCanvas = document.getElementById('onion-canvas');
+    const drawCtx = drawingCanvas.getContext('2d');
+    const onionCtx = onionCanvas.getContext('2d');
+
+    let width = 0;
+    let height = 0;
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    const state = {
+      tool: 'pencil',
+      size: 14,
+      opacity: 1.0,
+      color: '#111111',
+      mode: 'zen',
+      font: 'helvetica',
+      theme: 'cyber-pink',
+      glow: true,
+      grid: false,
+      onionSkin: true,
+      fps: 12,
+      isPlaying: false,
+      currentFrameIndex: 0
+    };
+
+    const toolIcons = {
+      pencil: '✏️', ink: '✒️', eraser: '🧹', color: '🎨',
+      timeline: '🎞️', smudge: '💧', paint: '🖌️', charcoal: '🖍️'
+    };
+
+    // Offscreen Canvas Frame Buffers (100% Immune to Tainted Canvas Security Errors)
+    let frameCanvases = [];
+
+    function resize() {
+      width = viewport.clientWidth || window.innerWidth;
+      height = viewport.clientHeight || (window.innerHeight - 48);
+
+      // We maintain existing artwork across resize
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = drawingCanvas.width;
+      tempCanvas.height = drawingCanvas.height;
+      if (tempCanvas.width > 0 && tempCanvas.height > 0) {
+        tempCanvas.getContext('2d').drawImage(drawingCanvas, 0, 0);
+      }
+
+      drawingCanvas.width = width;
+      drawingCanvas.height = height;
+      onionCanvas.width = width;
+      onionCanvas.height = height;
+
+      if (tempCanvas.width > 0 && tempCanvas.height > 0) {
+        drawCtx.drawImage(tempCanvas, 0, 0);
+      } else {
+        drawWelcomeDoodle();
+      }
+
+      saveCurrentFrameToBuffer();
+    }
+
+    function drawWelcomeDoodle() {
+      drawCtx.save();
+      drawCtx.font = 'bold 22px Helvetica, Arial, sans-serif';
+      drawCtx.fillStyle = '#FF007F';
+      drawCtx.fillText('⚡ ARCADEFLOW 2D: READY TO DRAW', 36, 56);
+
+      drawCtx.font = '14px Helvetica, Arial, sans-serif';
+      drawCtx.fillStyle = '#555555';
+      drawCtx.fillText('• Click and drag anywhere to draw!', 36, 88);
+      drawCtx.fillText('• Hold Spacebar or Right-Click for the Radial HUD.', 36, 112);
+      drawCtx.fillText('• Switch modes at the top (Zen / Pro Studio / Animation).', 36, 136);
+
+      // Playful smile doodle
+      drawCtx.strokeStyle = '#111111';
+      drawCtx.lineWidth = 4;
+      drawCtx.lineCap = 'round';
+      drawCtx.beginPath();
+      drawCtx.arc(80, 200, 32, 0, Math.PI * 2);
+      drawCtx.stroke();
+      drawCtx.beginPath();
+      drawCtx.arc(70, 192, 4, 0, Math.PI * 2);
+      drawCtx.arc(90, 192, 4, 0, Math.PI * 2);
+      drawCtx.fillStyle = '#111111';
+      drawCtx.fill();
+      drawCtx.beginPath();
+      drawCtx.arc(80, 204, 14, 0.2 * Math.PI, 0.8 * Math.PI);
+      drawCtx.stroke();
+
+      drawCtx.restore();
+    }
+
+    // =========================================================================
+    // DIRECT IMMEDIATE DRAWING (Rock-solid, zero latency)
+    // =========================================================================
+    function getCoords(e) {
+      const rect = drawingCanvas.getBoundingClientRect();
+      const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+      const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+      };
+    }
+
+    function applyBrush() {
+      drawCtx.lineCap = 'round';
+      drawCtx.lineJoin = 'round';
+
+      if (state.tool === 'eraser') {
+        drawCtx.globalCompositeOperation = 'destination-out';
+        drawCtx.lineWidth = state.size * 2.2;
+        drawCtx.strokeStyle = 'rgba(0,0,0,1)';
+        drawCtx.globalAlpha = 1.0;
+      } else {
+        drawCtx.globalCompositeOperation = 'source-over';
+        drawCtx.strokeStyle = state.color;
+        drawCtx.fillStyle = state.color;
+
+        if (state.tool === 'pencil') {
+          drawCtx.lineWidth = state.size;
+          drawCtx.globalAlpha = state.opacity;
+        } else if (state.tool === 'ink') {
+          drawCtx.lineWidth = state.size * 1.3;
+          drawCtx.globalAlpha = 1.0;
+        } else if (state.tool === 'charcoal') {
+          drawCtx.lineWidth = state.size * 1.6;
+          drawCtx.globalAlpha = state.opacity * 0.75;
+        } else if (state.tool === 'paint') {
+          drawCtx.lineWidth = state.size * 1.8;
+          drawCtx.globalAlpha = state.opacity * 0.9;
+        } else if (state.tool === 'smudge') {
+          drawCtx.lineWidth = state.size * 1.5;
+          drawCtx.globalAlpha = 0.35;
+        }
+      }
+    }
+
+    function startDraw(e) {
+      if (e.button === 2) { // Right Click
+        e.preventDefault();
+        openHUD(e.clientX, e.clientY);
+        return;
+      }
+      if (hudOpen) {
+        closeHUD();
+        return;
+      }
+
+      isDrawing = true;
+      const pos = getCoords(e);
+      lastX = pos.x;
+      lastY = pos.y;
+
+      drawCtx.save();
+      applyBrush();
+      drawCtx.beginPath();
+      drawCtx.arc(pos.x, pos.y, drawCtx.lineWidth / 2, 0, Math.PI * 2);
+      drawCtx.fill();
+      drawCtx.restore();
+    }
+
+    function moveDraw(e) {
+      if (!isDrawing || hudOpen) return;
+      const pos = getCoords(e);
+
+      drawCtx.save();
+      applyBrush();
+      drawCtx.beginPath();
+      drawCtx.moveTo(lastX, lastY);
+      drawCtx.lineTo(pos.x, pos.y);
+      drawCtx.stroke();
+      drawCtx.restore();
+
+      lastX = pos.x;
+      lastY = pos.y;
+    }
+
+    function endDraw() {
+      if (!isDrawing) return;
+      isDrawing = false;
+      saveCurrentFrameToBuffer();
+    }
+
+    // Direct Mouse & Touch Listeners
+    drawingCanvas.addEventListener('mousedown', startDraw);
+    window.addEventListener('mousemove', moveDraw);
+    window.addEventListener('mouseup', endDraw);
+
+    drawingCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); }, { passive: false });
+    window.addEventListener('touchmove', (e) => { if (isDrawing) { e.preventDefault(); moveDraw(e); } }, { passive: false });
+    window.addEventListener('touchend', endDraw);
+
+    drawingCanvas.addEventListener('contextmenu', (e) => e.preventDefault());
+    viewport.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    // =========================================================================
+    // RADIAL HUD (PROTOTYPE INSPIRED)
+    // =========================================================================
+    const hud = document.getElementById('radial-hud');
+    const hudReticle = document.getElementById('hud-reticle-needle');
+    const hudReadoutTitle = document.getElementById('hud-readout-title');
+    const hudSizeDisplay = document.getElementById('hud-size-display');
+    const hudOpacityDisplay = document.getElementById('hud-opacity-display');
+    const centerTipPreview = document.getElementById('center-tip-preview');
+    const hudSlices = document.querySelectorAll('.hud-slice');
+    const hudSummonBtn = document.getElementById('hud-summon-btn');
+    const activeToolIcon = document.getElementById('active-tool-icon');
+    const activeToolName = document.getElementById('active-tool-name');
+
+    let hudOpen = false;
+    let hudCenter = { x: 0, y: 0 };
+    let currentHoveredTool = state.tool;
+
+    function openHUD(clientX, clientY) {
+      hudOpen = true;
+      const rect = viewport.getBoundingClientRect();
+      let relX = (clientX !== undefined ? clientX : window.innerWidth / 2) - rect.left;
+      let relY = (clientY !== undefined ? clientY : window.innerHeight / 2) - rect.top;
+
+      const pad = 165;
+      relX = Math.max(pad, Math.min(width - pad, relX));
+      relY = Math.max(pad, Math.min(height - pad, relY));
+
+      hudCenter = { x: relX, y: relY };
+      hud.style.left = `${relX}px`;
+      hud.style.top = `${relY}px`;
+      hud.classList.remove('hidden');
+
+      currentHoveredTool = state.tool;
+      updateHUDReadout(state.tool);
+      updateReticleForTool(state.tool);
+    }
+
+    function closeHUD() {
+      if (!hudOpen) return;
+      hudOpen = false;
+      hud.classList.add('hidden');
+      if (currentHoveredTool) {
+        selectTool(currentHoveredTool);
+      }
+    }
+
+    function selectTool(toolKey) {
+      if (toolKey === 'color') {
+        document.getElementById('brush-color-picker').click();
+        return;
+      }
+      if (toolKey === 'timeline') {
+        toggleAnimationDock();
+        return;
+      }
+
+      state.tool = toolKey;
+      activeToolIcon.textContent = toolIcons[toolKey] || '✏️';
+      activeToolName.textContent = toolKey.toUpperCase();
+
+      hudSlices.forEach(s => s.classList.toggle('active', s.dataset.tool === toolKey));
+      updateTipPreview();
+      updateHUDReadout(toolKey);
+    }
+
+    function updateHUDReadout(toolKey) {
+      const slice = document.querySelector(`.hud-slice[data-tool="${toolKey}"]`);
+      hudReadoutTitle.textContent = slice ? slice.dataset.label : toolKey.toUpperCase();
+      hudSizeDisplay.textContent = `SIZE: ${state.size}px`;
+      hudOpacityDisplay.textContent = `OPACITY: ${Math.round(state.opacity * 100)}%`;
+    }
+
+    function updateReticleForTool(toolKey) {
+      const slice = document.querySelector(`.hud-slice[data-tool="${toolKey}"]`);
+      if (slice) {
+        const angle = parseInt(slice.dataset.angle, 10);
+        hudReticle.style.transform = `rotate(${angle + 90}deg)`;
+      }
+    }
+
+    function updateTipPreview() {
+      centerTipPreview.style.width = `${Math.min(32, Math.max(6, state.size))}px`;
+      centerTipPreview.style.height = `${Math.min(32, Math.max(6, state.size))}px`;
+      centerTipPreview.style.background = state.tool === 'eraser' ? '#FFFFFF' : state.color;
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && !hudOpen && !e.repeat) {
+        e.preventDefault();
+        openHUD(lastGlobalMouse.x, lastGlobalMouse.y);
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'Space' && hudOpen) {
+        e.preventDefault();
+        closeHUD();
+      }
+    });
+
+    let lastGlobalMouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    window.addEventListener('mousemove', (e) => {
+      lastGlobalMouse = { x: e.clientX, y: e.clientY };
+
+      if (hudOpen) {
+        const rect = viewport.getBoundingClientRect();
+        const cursorX = e.clientX - rect.left;
+        const cursorY = e.clientY - rect.top;
+
+        const dx = cursorX - hudCenter.x;
+        const dy = cursorY - hudCenter.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist > 25) {
+          let deg = Math.atan2(dy, dx) * (180 / Math.PI);
+          if (deg < 0) deg += 360;
+
+          hudReticle.style.transform = `rotate(${deg + 90}deg)`;
+
+          let closest = null;
+          let minDiff = Infinity;
+
+          hudSlices.forEach(slice => {
+            const sliceAngle = parseInt(slice.dataset.angle, 10);
+            let diff = Math.abs(deg - sliceAngle);
+            if (diff > 180) diff = 360 - diff;
+            if (diff < minDiff) {
+              minDiff = diff;
+              closest = slice;
+            }
+          });
+
+          if (closest && closest.dataset.tool !== currentHoveredTool) {
+            currentHoveredTool = closest.dataset.tool;
+            hudSlices.forEach(s => s.classList.toggle('active', s === closest));
+            updateHUDReadout(currentHoveredTool);
+          }
+        }
+      }
+    });
+
+    hudSummonBtn.addEventListener('click', () => {
+      if (!hudOpen) openHUD(window.innerWidth / 2, window.innerHeight / 2);
+      else closeHUD();
+    });
+
+    hudSlices.forEach(slice => {
+      slice.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectTool(slice.dataset.tool);
+        closeHUD();
+      });
+    });
+
+    // =========================================================================
+    // SLIDERS & CONTROLS
+    // =========================================================================
+    const sizeSlider = document.getElementById('size-slider');
+    const opacitySlider = document.getElementById('opacity-slider');
+    const colorPicker = document.getElementById('brush-color-picker');
+    const sizeVal = document.getElementById('size-val');
+    const opacityVal = document.getElementById('opacity-val');
+
+    sizeSlider.addEventListener('input', (e) => {
+      state.size = parseInt(e.target.value, 10);
+      sizeVal.textContent = state.size;
+      updateTipPreview();
+      updateHUDReadout(state.tool);
+    });
+
+    opacitySlider.addEventListener('input', (e) => {
+      state.opacity = parseInt(e.target.value, 10) / 100;
+      opacityVal.textContent = `${e.target.value}%`;
+      updateHUDReadout(state.tool);
+    });
+
+    colorPicker.addEventListener('input', (e) => {
+      state.color = e.target.value;
+      updateTipPreview();
+    });
+
+    // =========================================================================
+    // 2D ANIMATION ENGINE (Canvas-to-Canvas Buffer)
+    // =========================================================================
+    const animDock = document.getElementById('animation-dock');
+    const frameStrip = document.getElementById('frame-strip');
+    const playBtn = document.getElementById('anim-play-btn');
+    const addFrameBtn = document.getElementById('anim-add-frame');
+    const dupFrameBtn = document.getElementById('anim-dup-frame');
+    const delFrameBtn = document.getElementById('anim-del-frame');
+    const onionSkinToggle = document.getElementById('onion-skin-toggle');
+    const fpsSelect = document.getElementById('fps-select');
+    const dockCloseBtn = document.getElementById('dock-close-btn');
+
+    let playTimer = null;
+
+    function toggleAnimationDock() {
+      animDock.classList.toggle('collapsed');
+      renderFrameStrip();
+    }
+
+    dockCloseBtn.addEventListener('click', () => {
+      animDock.classList.add('collapsed');
+    });
+
+    function saveCurrentFrameToBuffer() {
+      if (width <= 0 || height <= 0) return;
+
+      let buffer = frameCanvases[state.currentFrameIndex];
+      if (!buffer) {
+        buffer = document.createElement('canvas');
+        frameCanvases[state.currentFrameIndex] = buffer;
+      }
+      buffer.width = width;
+      buffer.height = height;
+      const bCtx = buffer.getContext('2d');
+      bCtx.clearRect(0, 0, width, height);
+      bCtx.drawImage(drawingCanvas, 0, 0);
+
+      renderFrameStrip();
+      renderOnionSkin();
+    }
+
+    function restoreCurrentFrameFromBuffer() {
+      drawCtx.clearRect(0, 0, width, height);
+      const buffer = frameCanvases[state.currentFrameIndex];
+      if (buffer) {
+        drawCtx.drawImage(buffer, 0, 0);
+      }
+      renderOnionSkin();
+    }
+
+    function renderOnionSkin() {
+      onionCtx.clearRect(0, 0, width, height);
+      if (!state.onionSkin || state.currentFrameIndex === 0) return;
+
+      const prevBuffer = frameCanvases[state.currentFrameIndex - 1];
+      if (prevBuffer) {
+        onionCtx.drawImage(prevBuffer, 0, 0);
+      }
+    }
+
+    function renderFrameStrip() {
+      frameStrip.innerHTML = '';
+      const total = Math.max(1, frameCanvases.length);
+      for (let i = 0; i < total; i++) {
+        const cell = document.createElement('div');
+        cell.className = `frame-cell ${i === state.currentFrameIndex ? 'active' : ''}`;
+        cell.innerHTML = `<span class="frame-num">${String(i + 1).padStart(2, '0')}</span>`;
+        cell.addEventListener('click', () => {
+          saveCurrentFrameToBuffer();
+          state.currentFrameIndex = i;
+          restoreCurrentFrameFromBuffer();
+          renderFrameStrip();
+        });
+        frameStrip.appendChild(cell);
+      }
+    }
+
+    addFrameBtn.addEventListener('click', () => {
+      saveCurrentFrameToBuffer();
+      const emptyBuffer = document.createElement('canvas');
+      emptyBuffer.width = width;
+      emptyBuffer.height = height;
+      frameCanvases.push(emptyBuffer);
+      state.currentFrameIndex = frameCanvases.length - 1;
+      drawCtx.clearRect(0, 0, width, height);
+      renderFrameStrip();
+      renderOnionSkin();
+    });
+
+    dupFrameBtn.addEventListener('click', () => {
+      saveCurrentFrameToBuffer();
+      const current = frameCanvases[state.currentFrameIndex];
+      const dup = document.createElement('canvas');
+      dup.width = width;
+      dup.height = height;
+      if (current) dup.getContext('2d').drawImage(current, 0, 0);
+
+      frameCanvases.splice(state.currentFrameIndex + 1, 0, dup);
+      state.currentFrameIndex++;
+      restoreCurrentFrameFromBuffer();
+      renderFrameStrip();
+    });
+
+    delFrameBtn.addEventListener('click', () => {
+      if (frameCanvases.length <= 1) {
+        drawCtx.clearRect(0, 0, width, height);
+        saveCurrentFrameToBuffer();
+        return;
+      }
+      frameCanvases.splice(state.currentFrameIndex, 1);
+      state.currentFrameIndex = Math.max(0, state.currentFrameIndex - 1);
+      restoreCurrentFrameFromBuffer();
+      renderFrameStrip();
+    });
+
+    onionSkinToggle.addEventListener('change', (e) => {
+      state.onionSkin = e.target.checked;
+      renderOnionSkin();
+    });
+
+    fpsSelect.addEventListener('change', (e) => {
+      state.fps = parseInt(e.target.value, 10);
+      if (state.isPlaying) {
+        stopPlayback();
+        startPlayback();
+      }
+    });
+
+    playBtn.addEventListener('click', () => {
+      if (state.isPlaying) stopPlayback();
+      else startPlayback();
+    });
+
+    function startPlayback() {
+      if (frameCanvases.length <= 1) return;
+      state.isPlaying = true;
+      playBtn.textContent = '⏹ STOP';
+      playBtn.style.background = '#FF4757';
+
+      playTimer = setInterval(() => {
+        state.currentFrameIndex = (state.currentFrameIndex + 1) % frameCanvases.length;
+        restoreCurrentFrameFromBuffer();
+        renderFrameStrip();
+      }, 1000 / state.fps);
+    }
+
+    function stopPlayback() {
+      state.isPlaying = false;
+      clearInterval(playTimer);
+      playBtn.textContent = '▶ PLAY';
+      playBtn.style.background = '#2ED573';
+    }
+
+    // =========================================================================
+    // THEMES & TYPOGRAPHY
+    // =========================================================================
+    const fontToggleBtn = document.getElementById('font-toggle-btn');
+    const fontLabel = document.getElementById('font-label');
+    const themeBtn = document.getElementById('theme-btn');
+    const themeDrawer = document.getElementById('theme-drawer');
+    const closeThemeBtn = document.getElementById('close-theme-btn');
+    const glowToggleBtn = document.getElementById('glow-toggle-btn');
+    const gridToggleBtn = document.getElementById('grid-toggle-btn');
+    const swatches = document.querySelectorAll('.swatch-btn');
+    const slidersDock = document.getElementById('floating-sliders');
+
+    fontToggleBtn.addEventListener('click', () => {
+      if (state.font === 'helvetica') {
+        state.font = 'retro';
+        document.documentElement.setAttribute('data-font', 'retro');
+        fontLabel.textContent = 'FONT: 8-BIT ARCADE';
+      } else {
+        state.font = 'helvetica';
+        document.documentElement.setAttribute('data-font', 'helvetica');
+        fontLabel.textContent = 'FONT: HELVETICA';
+      }
+    });
+
+    themeBtn.addEventListener('click', () => themeDrawer.classList.toggle('hidden'));
+    closeThemeBtn.addEventListener('click', () => themeDrawer.classList.add('hidden'));
+
+    glowToggleBtn.addEventListener('click', () => {
+      state.glow = !state.glow;
+      document.documentElement.setAttribute('data-glow', state.glow ? 'on' : 'off');
+      glowToggleBtn.textContent = state.glow ? 'GLOW: ON' : 'GLOW: OFF';
+      glowToggleBtn.classList.toggle('active', state.glow);
+    });
+
+    swatches.forEach(swatch => {
+      swatch.addEventListener('click', () => {
+        swatches.forEach(s => s.classList.remove('active'));
+        swatch.classList.add('active');
+        state.theme = swatch.dataset.color;
+        document.documentElement.setAttribute('data-theme', swatch.dataset.color);
+      });
+    });
+
+    gridToggleBtn.addEventListener('click', () => {
+      state.grid = !state.grid;
+      document.body.classList.toggle('grid-active', state.grid);
+      gridToggleBtn.textContent = state.grid ? 'GRID: ON' : 'GRID: OFF';
+    });
+
+    const modeBtns = document.querySelectorAll('.mode-btn');
+    modeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        modeBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.mode = btn.dataset.mode;
+
+        if (state.mode === 'zen') {
+          animDock.classList.add('collapsed');
+          slidersDock.classList.add('hidden');
+        } else if (state.mode === 'studio') {
+          animDock.classList.add('collapsed');
+          slidersDock.classList.remove('hidden');
+        } else if (state.mode === 'anim') {
+          animDock.classList.remove('collapsed');
+          slidersDock.classList.remove('hidden');
+          renderFrameStrip();
+        }
+      });
+    });
+
+    document.getElementById('clear-btn').addEventListener('click', () => {
+      if (confirm('Clear current canvas frame?')) {
+        drawCtx.clearRect(0, 0, width, height);
+        saveCurrentFrameToBuffer();
+      }
+    });
+
+    // Initial setup
+    window.addEventListener('resize', resize);
+    resize();
+    selectTool('pencil');
+    updateTipPreview();
+    renderFrameStrip();
+
+    console.log("⚡ ArcadeFlow 2D Ready!");
+  })();
+  </script>
 </body>
 </html>
