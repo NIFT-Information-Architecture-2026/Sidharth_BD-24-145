@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cyber-pink" data-font="helvetica">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ArcadeFlow 2D - Open Creative & Animation Suite</title>
+  <!-- Google Fonts: Retro 8-bit Pixel & Clean Swiss Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Retro-Arcade Header (Auto-hiding / Minimalist) -->
+  <header id="top-bar" class="retro-window-header">
+    <div class="window-title-group">
+      <div class="window-dots">
+        <span class="dot close"></span>
+        <span class="dot min"></span>
+        <span class="dot max"></span>
+      </div>
+      <span class="app-title">⚡ ARCADE_FLOW_2D [v1.0.ora]</span>
+    </div>
+
+    <!-- Workspace Mode Switcher -->
+    <div class="mode-switcher-container">
+      <button class="mode-btn active" data-mode="zen">ZEN MODE</button>
+      <button class="mode-btn" data-mode="studio">PRO STUDIO</button>
+      <button class="mode-btn" data-mode="anim">ANIMATION</button>
+    </div>
+
+    <!-- Top Utility Controls -->
+    <div class="header-actions">
+      <!-- Font Switcher -->
+      <button id="font-toggle-btn" class="retro-btn" title="Toggle Swiss / 8-Bit Typography">
+        <span class="btn-icon">🔤</span> <span id="font-label">FONT: HELVETICA</span>
+      </button>
+
+      <!-- Theme & Glow Customizer Button -->
+      <button id="theme-btn" class="retro-btn" title="Customize Accent Glow & Palette">
+        <span class="btn-icon">🎨</span> THEME
+      </button>
+
+      <!-- Undo / Redo -->
+      <button id="undo-btn" class="retro-btn" title="Undo (Ctrl+Z)">↶</button>
+      <button id="redo-btn" class="retro-btn" title="Redo (Ctrl+Y)">↷</button>
+
+      <!-- Clear Canvas -->
+      <button id="clear-btn" class="retro-btn danger" title="Clear Canvas">🗑️</button>
+    </div>
+  </header>
+
+  <!-- Theme & Customization Drawer (Pop-up) -->
+  <div id="theme-drawer" class="retro-dialog hidden">
+    <div class="dialog-header">
+      <span>🕹️ THEME & ACCENT GLOW LAB</span>
+      <button id="close-theme-btn" class="dialog-close-btn">×</button>
+    </div>
+    <div class="dialog-body">
+      <div class="setting-row">
+        <label>NEON GLOW EFFECT:</label>
+        <button id="glow-toggle-btn" class="retro-btn small active">GLOW: ON</button>
+      </div>
+
+      <div class="setting-row">
+        <label>ACCENT PALETTE:</label>
+        <div class="palette-swatches">
+          <button class="swatch-btn active" data-color="cyber-pink" style="--c: #FF007F;" title="Cyber Pink"></button>
+          <button class="swatch-btn" data-color="electric-teal" style="--c: #00F0FF;" title="Electric Teal"></button>
+          <button class="swatch-btn" data-color="arcade-gold" style="--c: #FFB800;" title="Arcade Gold"></button>
+          <button class="swatch-btn" data-color="acid-lime" style="--c: #39FF14;" title="Acid Lime"></button>
+          <button class="swatch-btn" data-color="vapor-violet" style="--c: #9D00FF;" title="Vapor Violet"></button>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <label>CANVAS TEXTURE / GRID:</label>
+        <button id="grid-toggle-btn" class="retro-btn small">GRID: OFF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Canvas Viewport -->
+  <main id="viewport">
+    <canvas id="onion-canvas"></canvas>
+    <canvas id="drawing-canvas"></canvas>
+
+    <!-- Floating HUD Trigger for Touch / Mouse-only users -->
+    <button id="hud-summon-btn" class="hud-pill-trigger">
+      <span>⚡ HOLD SPACE OR CLICK FOR HUD</span>
+    </button>
+  </main>
+
+  <!-- On-Demand Gaming Radial HUD (Prototype Inspired) -->
+  <div id="radial-hud" class="radial-hud-container hidden">
+    <div class="hud-backdrop-glass"></div>
+
+    <!-- Center Reticle & Active Brush Preview -->
+    <div class="hud-center-core">
+      <div id="hud-reticle-needle" class="hud-reticle-arrow"></div>
+      <div class="hud-center-preview">
+        <div id="center-tip-preview" class="brush-tip-circle"></div>
+      </div>
+    </div>
+
+    <!-- 8 Radial Tool Slices (Equidistant Polar Layout) -->
+    <div class="hud-dial-ring">
+      <button class="hud-slice active" data-tool="pencil" data-angle="270" data-label="2B GRAPHITE PENCIL">
+        <span class="slice-icon">✏️</span>
+        <span class="slice-tag">PENCIL</span>
+      </button>
+      <button class="hud-slice" data-tool="ink" data-angle="315" data-label="INK NIB (FOUNTAIN)">
+        <span class="slice-icon">✒️</span>
+        <span class="slice-tag">INK</span>
+      </button>
+      <button class="hud-slice" data-tool="eraser" data-angle="0" data-label="PRECISION ERASER">
+        <span class="slice-icon">🧹</span>
+        <span class="slice-tag">ERASE</span>
+      </button>
+      <button class="hud-slice" data-tool="color" data-angle="45" data-label="COLOR PICKER">
+        <span class="slice-icon">🎨</span>
+        <span class="slice-tag">COLOR</span>
+      </button>
+      <button class="hud-slice" data-tool="timeline" data-angle="90" data-label="2D ANIMATION TIMELINE">
+        <span class="slice-icon">🎞️</span>
+        <span class="slice-tag">ANIM</span>
+      </button>
+      <button class="hud-slice" data-tool="smudge" data-angle="135" data-label="BLENDER / SMUDGE">
+        <span class="slice-icon">💧</span>
+        <span class="slice-tag">SMUDGE</span>
+      </button>
+      <button class="hud-slice" data-tool="paint" data-angle="180" data-label="ACRYLIC & OIL PAINT">
+        <span class="slice-icon">🖌️</span>
+        <span class="slice-tag">PAINT</span>
+      </button>
+      <button class="hud-slice" data-tool="charcoal" data-angle="225" data-label="SOFT CHARCOAL">
+        <span class="slice-icon">🖍️</span>
+        <span class="slice-tag">CHARCOAL</span>
+      </button>
+    </div>
+
+    <!-- Bottom Dynamic Status Readout -->
+    <div class="hud-bottom-chip">
+      <span id="hud-readout-title" class="hud-chip-title">2B GRAPHITE PENCIL</span>
+      <div class="hud-chip-stats">
+        <span id="hud-size-display">SIZE: 12px</span>
+        <span class="chip-divider">|</span>
+        <span id="hud-opacity-display">OPACITY: 85%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Floating Sliders for Size & Opacity -->
+  <aside id="floating-sliders" class="retro-slider-dock">
+    <div class="slider-group">
+      <label>SIZE</label>
+      <input type="range" id="size-slider" min="2" max="80" value="12">
+      <span id="size-val">12</span>
+    </div>
+    <div class="slider-group">
+      <label>OPACITY</label>
+      <input type="range" id="opacity-slider" min="10" max="100" value="85">
+      <span id="opacity-val">85%</span>
+    </div>
+    <div class="slider-group color-quick-pick">
+      <label>COLOR</label>
+      <input type="color" id="brush-color-picker" value="#111111">
+    </div>
+  </aside>
+
+  <!-- Collapsible 2D Animation Timeline Dock -->
+  <footer id="animation-dock" class="retro-timeline-dock">
+    <div class="timeline-header">
+      <div class="timeline-controls">
+        <button id="anim-play-btn" class="retro-btn play-btn">▶ PLAY</button>
+        <button id="anim-add-frame" class="retro-btn">+ NEW FRAME</button>
+        <button id="anim-dup-frame" class="retro-btn">⧉ DUPLICATE</button>
+        <button id="anim-del-frame" class="retro-btn danger">✕ DELETE</button>
+      </div>
+
+      <div class="timeline-settings">
+        <label class="toggle-label">
+          <input type="checkbox" id="onion-skin-toggle" checked>
+          <span>ONION SKIN</span>
+        </label>
+        <div class="fps-selector">
+          <label>FPS:</label>
+          <select id="fps-select" class="retro-select">
+            <option value="6">6 FPS</option>
+            <option value="12" selected>12 FPS</option>
+            <option value="24">24 FPS</option>
+          </select>
+        </div>
+        <button id="dock-close-btn" class="retro-btn small">✕ CLOSE</button>
+      </div>
+    </div>
+
+    <!-- Frame Strip Scrubber -->
+    <div id="frame-strip" class="frame-strip-scroller">
+      <!-- Frames injected dynamically by app.js -->
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

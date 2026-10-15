@@ -1,0 +1,663 @@
+/* ==========================================================================
+   ARCADEFLOW 2D - DESIGN TOKENS & RETRO-ARCADE STYLING
+   ========================================================================== */
+
+:root {
+  /* Default Accent Palette: Cyber Pink */
+  --accent-primary: #FF007F;
+  --accent-glow: 0 0 16px rgba(255, 0, 127, 0.85);
+  --accent-contrast: #FFFFFF;
+
+  /* UI Base Colors */
+  --bg-dark: #0F021F;
+  --bg-grid: #1A0436;
+  --bg-surface: #FFFAFC;
+  --text-dark: #111111;
+  --text-light: #FFFFFF;
+  
+  /* Neo-Brutalist Hard Stroke & Shadows */
+  --border-thick: 2.5px solid #000000;
+  --shadow-hard: 4px 4px 0px #000000;
+  --shadow-hard-sm: 2px 2px 0px #000000;
+  --shadow-hard-inset: inset 2px 2px 0px #000000;
+
+  /* Fonts */
+  --font-active: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-retro: "Press Start 2P", monospace;
+  --font-swiss: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* Palette Swatch Variations */
+[data-theme="cyber-pink"] {
+  --accent-primary: #FF007F;
+  --accent-glow: 0 0 18px rgba(255, 0, 127, 0.9);
+}
+[data-theme="electric-teal"] {
+  --accent-primary: #00F0FF;
+  --accent-glow: 0 0 18px rgba(0, 240, 255, 0.9);
+  --accent-contrast: #000000;
+}
+[data-theme="arcade-gold"] {
+  --accent-primary: #FFB800;
+  --accent-glow: 0 0 18px rgba(255, 184, 0, 0.9);
+  --accent-contrast: #000000;
+}
+[data-theme="acid-lime"] {
+  --accent-primary: #39FF14;
+  --accent-glow: 0 0 18px rgba(57, 255, 20, 0.9);
+  --accent-contrast: #000000;
+}
+[data-theme="vapor-violet"] {
+  --accent-primary: #9D00FF;
+  --accent-glow: 0 0 18px rgba(157, 0, 255, 0.9);
+}
+
+/* Glow OFF State */
+[data-glow="off"] {
+  --accent-glow: none !important;
+}
+
+/* Typography Mode */
+[data-font="retro"] {
+  --font-active: "Press Start 2P", monospace;
+}
+[data-font="retro"] .app-title,
+[data-font="retro"] .retro-btn,
+[data-font="retro"] .mode-btn,
+[data-font="retro"] .hud-chip-title,
+[data-font="retro"] .hud-chip-stats,
+[data-font="retro"] label {
+  font-family: var(--font-retro) !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   GLOBAL RESET & LAYOUT
+   ========================================================================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-dark);
+  font-family: var(--font-active);
+  color: var(--text-dark);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Grid Background */
+body.grid-active #viewport {
+  background-image: 
+    linear-gradient(rgba(255, 0, 127, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 0, 127, 0.15) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ==========================================================================
+   RETRO HEADER
+   ========================================================================== */
+
+.retro-window-header {
+  height: 48px;
+  background: #FFF8E7;
+  border-bottom: var(--border-thick);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  z-index: 50;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+  transition: transform 0.25s ease;
+}
+
+.window-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.window-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid #000000;
+}
+.dot.close { background: #FF4757; }
+.dot.min   { background: #FFA502; }
+.dot.max   { background: #2ED573; }
+
+.app-title {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #000000;
+  letter-spacing: 0.5px;
+}
+
+/* Mode Switcher Tabs */
+.mode-switcher-container {
+  display: flex;
+  gap: 6px;
+}
+
+.mode-btn {
+  background: #FFFFFF;
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard-sm);
+  padding: 4px 10px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.1s ease;
+}
+
+.mode-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow-hard);
+}
+
+.mode-btn.active {
+  background: var(--accent-primary);
+  color: var(--accent-contrast);
+  box-shadow: var(--shadow-hard-inset);
+  transform: translate(1px, 1px);
+}
+
+/* Header Action Buttons */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.retro-btn {
+  background: #FFFFFF;
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard-sm);
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.1s ease;
+}
+
+.retro-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.retro-btn.danger {
+  background: #FFE5E5;
+}
+
+.retro-btn.small {
+  padding: 3px 8px;
+  font-size: 0.72rem;
+}
+
+/* ==========================================================================
+   CANVAS VIEWPORT
+   ========================================================================== */
+
+#viewport {
+  flex: 1;
+  position: relative;
+  background: #FFFFFF;
+  overflow: hidden;
+  cursor: crosshair;
+}
+
+#drawing-canvas,
+#onion-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+#onion-canvas {
+  pointer-events: none;
+  opacity: 0.35;
+}
+
+/* Floating HUD Summon Pill */
+.hud-pill-trigger {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #000000;
+  color: #FFFFFF;
+  border: 2px solid var(--accent-primary);
+  box-shadow: var(--accent-glow);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 10;
+}
+
+.hud-pill-trigger:hover {
+  opacity: 1;
+  transform: translateX(-50%) scale(1.05);
+}
+
+/* ==========================================================================
+   GAMING-STYLE RADIAL HUD (PROTOTYPE INSPIRED)
+   ========================================================================== */
+
+.radial-hud-container {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 100;
+  transition: opacity 0.12s ease-out, transform 0.12s ease-out;
+}
+
+.radial-hud-container.hidden {
+  display: none !important;
+}
+
+/* Dark Frosted Glass Backplate */
+.hud-backdrop-glass {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(18, 2, 35, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 3px solid #000000;
+  box-shadow: var(--shadow-hard), var(--accent-glow);
+}
+
+/* Center Core with Brush Tip Silhouette & Reticle */
+.hud-center-core {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #000000;
+  border: 2.5px solid var(--accent-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 105;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+}
+
+.hud-reticle-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 12px solid var(--accent-primary);
+  top: -16px;
+  left: calc(50% - 7px);
+  transform-origin: 7px 61px;
+  transition: transform 0.1s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+.hud-center-preview {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #24003E;
+  border: 1.5px solid #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brush-tip-circle {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  box-shadow: var(--accent-glow);
+  transition: all 0.15s ease;
+}
+
+/* Radial Dial Ring & Slices */
+.hud-dial-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+}
+
+.hud-slice {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  background: #FFFFFF;
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard-sm);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: all 0.12s ease;
+  transform: translate(-50%, -50%);
+}
+
+.hud-slice .slice-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.hud-slice .slice-tag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+/* Polar Slot Positioning (8 equidistant nodes around 230px diameter circle) */
+.hud-slice[data-angle="270"] { top: 12%; left: 50%; }   /* 12:00 North - Pencil */
+.hud-slice[data-angle="315"] { top: 22%; left: 78%; }   /* 1:30 - Ink */
+.hud-slice[data-angle="0"]   { top: 50%; left: 88%; }   /* 3:00 East - Eraser */
+.hud-slice[data-angle="45"]  { top: 78%; left: 78%; }   /* 4:30 - Color */
+.hud-slice[data-angle="90"]  { top: 88%; left: 50%; }   /* 6:00 South - Anim */
+.hud-slice[data-angle="135"] { top: 78%; left: 22%; }   /* 7:30 - Smudge */
+.hud-slice[data-angle="180"] { top: 50%; left: 12%; }   /* 9:00 West - Paint */
+.hud-slice[data-angle="225"] { top: 22%; left: 22%; }   /* 10:30 - Charcoal */
+
+/* Hover & Active States */
+.hud-slice:hover,
+.hud-slice.active {
+  background: var(--accent-primary) !important;
+  color: var(--accent-contrast) !important;
+  box-shadow: var(--shadow-hard), var(--accent-glow) !important;
+  transform: translate(-50%, -50%) scale(1.18);
+  z-index: 110;
+}
+
+/* Bottom Dynamic Readout Chip */
+.hud-bottom-chip {
+  position: absolute;
+  bottom: -46px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #000000;
+  border: 2px solid var(--accent-primary);
+  box-shadow: var(--shadow-hard-sm), var(--accent-glow);
+  padding: 6px 14px;
+  border-radius: 6px;
+  text-align: center;
+  min-width: 220px;
+  pointer-events: none;
+}
+
+.hud-chip-title {
+  display: block;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.5px;
+}
+
+.hud-chip-stats {
+  font-size: 0.65rem;
+  color: var(--accent-primary);
+  margin-top: 2px;
+  font-weight: 600;
+}
+
+.chip-divider {
+  color: #555555;
+  margin: 0 4px;
+}
+
+/* ==========================================================================
+   FLOATING SLIDERS DOCK
+   ========================================================================== */
+
+.retro-slider-dock {
+  position: absolute;
+  top: 60px;
+  left: 16px;
+  background: #FFFFFF;
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard);
+  padding: 10px 14px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 40;
+}
+
+.slider-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.slider-group input[type="range"] {
+  width: 90px;
+  accent-color: var(--accent-primary);
+  cursor: pointer;
+}
+
+.slider-group input[type="color"] {
+  border: 2px solid #000000;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 0;
+  background: transparent;
+}
+
+/* ==========================================================================
+   2D ANIMATION TIMELINE DOCK
+   ========================================================================== */
+
+.retro-timeline-dock {
+  background: #FFF8E7;
+  border-top: var(--border-thick);
+  box-shadow: 0 -4px 0 rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+  transition: transform 0.25s ease;
+}
+
+.retro-timeline-dock.collapsed {
+  transform: translateY(100%);
+}
+
+.timeline-header {
+  height: 42px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #E0D5BE;
+}
+
+.timeline-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.play-btn {
+  background: #2ED573 !important;
+  color: #000000 !important;
+}
+
+.timeline-settings {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.retro-select {
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard-sm);
+  padding: 2px 6px;
+  font-weight: 700;
+  border-radius: 4px;
+  background: #FFFFFF;
+}
+
+/* Frame Scrubber Strip */
+.frame-strip-scroller {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  overflow-x: auto;
+  background: #F0E6D2;
+}
+
+.frame-cell {
+  min-width: 54px;
+  height: 52px;
+  background: #FFFFFF;
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard-sm);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.1s ease;
+}
+
+.frame-cell .frame-num {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.frame-cell.active {
+  background: var(--accent-primary) !important;
+  color: var(--accent-contrast) !important;
+  box-shadow: var(--shadow-hard-inset) !important;
+  transform: scale(1.05);
+}
+
+/* ==========================================================================
+   THEME LAB DIALOG (POP-UP)
+   ========================================================================== */
+
+.retro-dialog {
+  position: absolute;
+  top: 60px;
+  right: 16px;
+  width: 290px;
+  background: #FFFFFF;
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard);
+  border-radius: 8px;
+  z-index: 60;
+}
+
+.retro-dialog.hidden {
+  display: none !important;
+}
+
+.dialog-header {
+  background: #111111;
+  color: #FFFFFF;
+  padding: 8px 12px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dialog-close-btn {
+  background: #FF4757;
+  color: #FFFFFF;
+  border: 1.5px solid #000000;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.dialog-body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.setting-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.palette-swatches {
+  display: flex;
+  gap: 8px;
+}
+
+.swatch-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--c);
+  border: 2px solid #000000;
+  cursor: pointer;
+  box-shadow: var(--shadow-hard-sm);
+  transition: transform 0.1s;
+}
+
+.swatch-btn.active {
+  transform: scale(1.2);
+  outline: 2px solid #000000;
+}
