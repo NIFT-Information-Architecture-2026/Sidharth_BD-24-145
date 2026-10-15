@@ -1,6 +1,6 @@
 /**
- * ARCADEFLOW 2D - INTERACTIVE PROTOTYPE ENGINE (v1.1 Robust Edition)
- * Delivers silky-smooth stroke interpolation and gaming radial HUD mechanics.
+ * ARCADEFLOW 2D - INTERACTIVE PROTOTYPE ENGINE (v1.2 High-Reliability Edition)
+ * Zero-lag continuous drawing engine with responsive radial HUD.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -21,8 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Active Drawing & App State
   const state = {
     tool: 'pencil',          // 'pencil', 'ink', 'eraser', 'charcoal', 'paint', 'smudge'
-    size: 10,
-    opacity: 0.90,
+    size: 14,
+    opacity: 0.95,
     color: '#111111',
     mode: 'zen',             // 'zen', 'studio', 'anim'
     font: 'helvetica',
@@ -35,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
     currentFrameIndex: 0
   };
 
-  // Tool Meta Icons
   const toolIcons = {
     pencil: '✏️',
     ink: '✒️',
@@ -47,43 +46,71 @@ document.addEventListener('DOMContentLoaded', () => {
     charcoal: '🖍️'
   };
 
-  // Animation Storage (array of DataURLs or ImageBitmaps for 100% reliability)
   let animationFrames = [];
 
   function resizeCanvas() {
-    width = viewport.clientWidth;
-    height = viewport.clientHeight;
+    width = viewport.clientWidth || window.innerWidth;
+    height = viewport.clientHeight || (window.innerHeight - 48);
     dpr = window.devicePixelRatio || 1;
 
-    // Buffer dimensions
     drawingCanvas.width = width * dpr;
     drawingCanvas.height = height * dpr;
     onionCanvas.width = width * dpr;
     onionCanvas.height = height * dpr;
 
-    // CSS dimensions
     drawingCanvas.style.width = width + 'px';
     drawingCanvas.style.height = height + 'px';
     onionCanvas.style.width = width + 'px';
     onionCanvas.style.height = height + 'px';
 
-    // Reset transform and apply DPR scaling
     drawCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     onionCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    // Initial blank frame
     if (animationFrames.length === 0) {
+      drawWelcomeGraphic();
       saveFrameSnapshot();
     } else {
       restoreCurrentFrame();
     }
   }
 
+  // Draw an initial welcoming sketch on empty canvas
+  function drawWelcomeGraphic() {
+    drawCtx.save();
+    drawCtx.font = 'bold 22px Helvetica, Arial, sans-serif';
+    drawCtx.fillStyle = '#FF007F';
+    drawCtx.fillText('⚡ ARCADEFLOW 2D: READY TO DRAW', 36, 60);
+
+    drawCtx.font = '14px Helvetica, Arial, sans-serif';
+    drawCtx.fillStyle = '#666666';
+    drawCtx.fillText('• Click and drag anywhere to sketch.', 36, 92);
+    drawCtx.fillText('• Hold Spacebar or Right-Click to open the Radial HUD.', 36, 116);
+    drawCtx.fillText('• Click "THEME" or "🔤 FONT" in the top bar to customize.', 36, 140);
+
+    // Cute sample doodle
+    drawCtx.strokeStyle = '#111111';
+    drawCtx.lineWidth = 4;
+    drawCtx.lineCap = 'round';
+    drawCtx.beginPath();
+    drawCtx.arc(80, 220, 36, 0, Math.PI * 2);
+    drawCtx.stroke();
+    drawCtx.beginPath();
+    drawCtx.arc(70, 212, 4, 0, Math.PI * 2);
+    drawCtx.arc(90, 212, 4, 0, Math.PI * 2);
+    drawCtx.fillStyle = '#111111';
+    drawCtx.fill();
+    drawCtx.beginPath();
+    drawCtx.arc(80, 224, 16, 0.2 * Math.PI, 0.8 * Math.PI);
+    drawCtx.stroke();
+
+    drawCtx.restore();
+  }
+
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
 
   // =========================================================================
-  // 2. SILKY-SMOOTH "DIGITAL BUTTER" BRUSH ENGINE
+  // 2. BULLETPROOF DRAWING ENGINE (CONTINUOUS LINEAR + ROUND CAPS)
   // =========================================================================
   let isDrawing = false;
   let lastX = 0;
@@ -105,11 +132,11 @@ document.addEventListener('DOMContentLoaded', () => {
     drawCtx.lineJoin = 'round';
 
     const p = pressure || 0.5;
-    const baseWidth = Math.max(1, state.size * (0.3 + p * 0.7));
+    const baseWidth = Math.max(1.5, state.size * (0.3 + p * 0.7));
 
     if (state.tool === 'eraser') {
       drawCtx.globalCompositeOperation = 'destination-out';
-      drawCtx.lineWidth = baseWidth * 1.5;
+      drawCtx.lineWidth = baseWidth * 2.0;
       drawCtx.strokeStyle = 'rgba(0,0,0,1)';
       drawCtx.fillStyle = 'rgba(0,0,0,1)';
       drawCtx.globalAlpha = 1.0;
@@ -120,26 +147,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (state.tool === 'pencil') {
         drawCtx.lineWidth = baseWidth;
-        drawCtx.globalAlpha = state.opacity * (0.5 + p * 0.5);
-      } else if (state.tool === 'ink') {
-        drawCtx.lineWidth = baseWidth * 1.2;
         drawCtx.globalAlpha = state.opacity;
-      } else if (state.tool === 'charcoal') {
-        drawCtx.lineWidth = baseWidth * 1.4;
-        drawCtx.globalAlpha = state.opacity * 0.7;
-      } else if (state.tool === 'paint') {
-        drawCtx.lineWidth = baseWidth * 1.6;
-        drawCtx.globalAlpha = state.opacity * 0.85;
-      } else if (state.tool === 'smudge') {
+      } else if (state.tool === 'ink') {
         drawCtx.lineWidth = baseWidth * 1.3;
-        drawCtx.globalAlpha = 0.35;
+        drawCtx.globalAlpha = 1.0;
+      } else if (state.tool === 'charcoal') {
+        drawCtx.lineWidth = baseWidth * 1.6;
+        drawCtx.globalAlpha = state.opacity * 0.8;
+      } else if (state.tool === 'paint') {
+        drawCtx.lineWidth = baseWidth * 1.8;
+        drawCtx.globalAlpha = state.opacity * 0.9;
+      } else if (state.tool === 'smudge') {
+        drawCtx.lineWidth = baseWidth * 1.5;
+        drawCtx.globalAlpha = 0.4;
       }
     }
   }
 
-  // Pointer Down (Mouse, Tablet Stylus, Touch)
-  drawingCanvas.addEventListener('pointerdown', (e) => {
-    // If user right-clicks or stylus button (button 2), summon HUD instead of drawing
+  function startDrawing(e) {
     if (e.button === 2) {
       e.preventDefault();
       openHUD(e.clientX, e.clientY);
@@ -151,8 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    if (e.button !== 0 && e.pointerType === 'mouse') return;
-
     isDrawing = true;
     try { drawingCanvas.setPointerCapture(e.pointerId); } catch(err) {}
 
@@ -161,22 +184,18 @@ document.addEventListener('DOMContentLoaded', () => {
     lastY = pos.y;
     lastPressure = pos.pressure;
 
-    // Draw initial dot
     drawCtx.save();
     applyBrushStyles(pos.pressure);
     drawCtx.beginPath();
     drawCtx.arc(pos.x, pos.y, drawCtx.lineWidth / 2, 0, Math.PI * 2);
     drawCtx.fill();
     drawCtx.restore();
-  });
+  }
 
-  // Pointer Move (Smooth quadratic bezier interpolation)
-  drawingCanvas.addEventListener('pointermove', (e) => {
+  function drawMove(e) {
     if (!isDrawing || hudOpen) return;
 
     const pos = getCanvasCoords(e);
-    const midX = (lastX + pos.x) / 2;
-    const midY = (lastY + pos.y) / 2;
     const avgPressure = (lastPressure + pos.pressure) / 2;
 
     drawCtx.save();
@@ -184,36 +203,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
     drawCtx.beginPath();
     drawCtx.moveTo(lastX, lastY);
-    drawCtx.quadraticCurveTo(lastX, lastY, midX, midY);
+    drawCtx.lineTo(pos.x, pos.y);
     drawCtx.stroke();
-
-    // Round join fill to ensure zero gaps
-    drawCtx.beginPath();
-    drawCtx.arc(midX, midY, drawCtx.lineWidth / 2, 0, Math.PI * 2);
-    drawCtx.fill();
 
     drawCtx.restore();
 
     lastX = pos.x;
     lastY = pos.y;
     lastPressure = pos.pressure;
-  });
+  }
 
-  // Pointer Up / Cancel
-  function finishStroke() {
+  function stopDrawing() {
     if (!isDrawing) return;
     isDrawing = false;
     saveFrameSnapshot();
   }
 
-  drawingCanvas.addEventListener('pointerup', finishStroke);
-  drawingCanvas.addEventListener('pointercancel', finishStroke);
-  drawingCanvas.addEventListener('pointerleave', finishStroke);
+  // Pointer Events (Tablet Pen + Mouse + Touch)
+  drawingCanvas.addEventListener('pointerdown', startDrawing);
+  drawingCanvas.addEventListener('pointermove', drawMove);
+  drawingCanvas.addEventListener('pointerup', stopDrawing);
+  drawingCanvas.addEventListener('pointercancel', stopDrawing);
 
-  // Prevent browser context menu on canvas so right-click is free for HUD
-  drawingCanvas.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
+  // Fallback Native Mouse Events (for compatibility)
+  drawingCanvas.addEventListener('mousedown', (e) => {
+    if (!isDrawing && e.pointerType === undefined) startDrawing(e);
   });
+  drawingCanvas.addEventListener('mousemove', (e) => {
+    if (isDrawing && e.pointerType === undefined) drawMove(e);
+  });
+  window.addEventListener('mouseup', stopDrawing);
+
+  // Prevent browser context menu on canvas
+  drawingCanvas.addEventListener('contextmenu', (e) => e.preventDefault());
+  viewport.addEventListener('contextmenu', (e) => e.preventDefault());
 
   // =========================================================================
   // 3. GAMING-STYLE RADIAL HUD (PROTOTYPE INSPIRED)
@@ -237,11 +260,9 @@ document.addEventListener('DOMContentLoaded', () => {
     hudOpen = true;
     const rect = viewport.getBoundingClientRect();
     
-    // Relative coordinates inside viewport
-    let relX = clientX - rect.left;
-    let relY = clientY - rect.top;
+    let relX = (clientX !== undefined ? clientX : window.innerWidth / 2) - rect.left;
+    let relY = (clientY !== undefined ? clientY : window.innerHeight / 2) - rect.top;
 
-    // Boundary clamp so HUD never clips offscreen
     const pad = 165;
     relX = Math.max(pad, Math.min(width - pad, relX));
     relY = Math.max(pad, Math.min(height - pad, relY));
@@ -278,7 +299,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     state.tool = toolKey;
 
-    // Update active badges & preview
     activeToolIcon.textContent = toolIcons[toolKey] || '✏️';
     activeToolName.textContent = toolKey.toUpperCase();
 
@@ -342,14 +362,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const dy = cursorY - hudCenter.y;
       const dist = Math.hypot(dx, dy);
 
-      // Deadzone threshold (25px)
       if (dist > 25) {
         let deg = Math.atan2(dy, dx) * (180 / Math.PI);
         if (deg < 0) deg += 360;
 
         hudReticle.style.transform = `rotate(${deg + 90}deg)`;
 
-        // Find closest slice
         let closest = null;
         let minDiff = Infinity;
 
@@ -373,7 +391,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Touch / Button Trigger for HUD
   hudSummonBtn.addEventListener('click', () => {
     if (!hudOpen) {
       openHUD(window.innerWidth / 2, window.innerHeight / 2);
@@ -382,7 +399,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Direct Click on Slices
   hudSlices.forEach(slice => {
     slice.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -588,7 +604,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const swatches = document.querySelectorAll('.swatch-btn');
   const slidersDock = document.getElementById('floating-sliders');
 
-  // Font Toggle (Helvetica <-> Retro Pixel)
   fontToggleBtn.addEventListener('click', () => {
     if (state.font === 'helvetica') {
       state.font = 'retro';
@@ -601,7 +616,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Theme Drawer Toggle
   themeBtn.addEventListener('click', () => {
     themeDrawer.classList.toggle('hidden');
   });
@@ -609,7 +623,6 @@ document.addEventListener('DOMContentLoaded', () => {
     themeDrawer.classList.add('hidden');
   });
 
-  // Glow Toggle
   glowToggleBtn.addEventListener('click', () => {
     state.glow = !state.glow;
     document.documentElement.setAttribute('data-glow', state.glow ? 'on' : 'off');
@@ -617,7 +630,6 @@ document.addEventListener('DOMContentLoaded', () => {
     glowToggleBtn.classList.toggle('active', state.glow);
   });
 
-  // Palette Swatches
   swatches.forEach(swatch => {
     swatch.addEventListener('click', () => {
       swatches.forEach(s => s.classList.remove('active'));
@@ -628,14 +640,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Grid Background Toggle
   gridToggleBtn.addEventListener('click', () => {
     state.grid = !state.grid;
     document.body.classList.toggle('grid-active', state.grid);
     gridToggleBtn.textContent = state.grid ? 'GRID: ON' : 'GRID: OFF';
   });
 
-  // Workspace Mode Switcher Tabs
   const modeBtns = document.querySelectorAll('.mode-btn');
   modeBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -657,7 +667,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Clear Canvas Button
   document.getElementById('clear-btn').addEventListener('click', () => {
     if (confirm('Clear current canvas frame?')) {
       drawCtx.clearRect(0, 0, width, height);
@@ -665,9 +674,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Initialize UI Elements
   selectTool('pencil');
   updateTipPreview();
   renderFrameStrip();
-  console.log('⚡ ArcadeFlow 2D Engine Initialized (v1.1 Robust Edition).');
+  console.log('⚡ ArcadeFlow 2D Engine Initialized (v1.2 High-Reliability Edition).');
 });
