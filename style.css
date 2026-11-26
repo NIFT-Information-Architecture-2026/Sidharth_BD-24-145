@@ -250,6 +250,10 @@ body.grid-active #viewport {
   background: #FFFFFF;
   overflow: hidden;
   cursor: crosshair;
+  border-left: 4px solid #000000;
+  border-right: 4px solid #000000;
+  border-bottom: 4px solid #000000;
+  box-shadow: inset 0 0 0 3px var(--accent-primary), inset 0 0 15px rgba(0, 0, 0, 0.08);
 }
 
 #canvas-transform-wrapper {
