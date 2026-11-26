@@ -1,90 +1,58 @@
 # Phase 4: User Flows & Low-Fidelity Wireframes
 
-## 1. The Gaming Radial HUD Specification (Prototype-Inspired)
-
-The core interaction paradigm of the software is an on-demand, gesture-driven **Radial HUD** centered at the cursor/stylus position.
-
-```
-                           [12:00] PENCIL
-                              (North)
-                   [10:30]                [1:30]
-                  CHARCOAL               INK NIB
-                         \              /
-            [9:00]        ┌────────────┐        [3:00]
-            PAINT / ──────┤ ACTIVE TIP ├─────── ERASER
-            BLENDER       │  PREVIEW   │       (East)
-                          └────────────┘
-                         /              \
-                   [7:30]                [4:30]
-                   SMUDGE                COLOR WHEEL
-                              [6:00]
-                             TIMELINE
-                             (South)
-                                │
-                        ┌───────────────┐
-                        │   2B PENCIL   │  <-- Dynamic Status Readout
-                        │  16px  •  90% │
-                        └───────────────┘
-```
-
----
-
-## 2. Interaction State Machine: The "Flick & Release" Flow
-
-```
-┌─────────────────┐       Press & Hold Hotkey / Stylus Button
-│  RESTING CANVAS │ ────────────────────────────────────────► ┌──────────────────────┐
-│  (100% Bleed,   │                                           │   HUD BLOOM STATE    │
-│   Zero Clutter) │ ◄──────────────────────────────────────── │ (Appears at cursor,  │
-└─────────────────┘              Release Hotkey               │  Deadzone centered)  │
-                                                              └──────────┬───────────┘
-                                                                         │
-                                                       Deflect Stylus / Drag Cursor
-                                                                         │
-                                                                         ▼
-┌─────────────────┐             Release Hotkey                ┌──────────────────────┐
-│  ACTIVE CANVAS  │ ◄──────────────────────────────────────── │   ACTIVE HOVER GLOW  │
-│ (Switched Tool  │       (Tool selected instantly in         │ (Slot glows, reticle │
-│  Ready to Draw) │                 <50ms)                    │  points, label read) │
-└─────────────────┘                                           └──────────────────────┘
-```
-
-### State Details:
-1. **State 0: Resting Canvas**
-   - Canvas occupies 100% of the screen. Zero persistent sidebars or floating panels.
-2. **State 1: HUD Bloom State**
-   - Triggered by holding `Spacebar`, keyboard hotkey, or stylus barrel button.
-   - The concentric radial wheel blooms smoothly (scale 0.85 -> 1.0, 120ms ease-out) centered directly on the cursor.
-   - Center deadzone (radius 24px) prevents accidental mis-selection.
-3. **State 2: Directional Hover & Reticle Snap**
-   - Moving the cursor into one of the 8 radial slices activates that slot with a glowing accent rim.
-   - The center reticle points towards the selected angle.
-   - The bottom HUD text displays the tool name and active parameters.
-4. **State 3: Snap & Release**
-   - Releasing the hotkey collapses the HUD immediately.
-   - The tool is armed and ready to draw without requiring an explicit confirmation click.
-
----
-
-## 3. Screen Wireframe: Complete Creative Workspace Layout
+## 1. Complete Creative Workspace Layout (Pro Edition)
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────┐
-│ [≡] Project_01.ora            [Mode: Zen ▾]              Undo ↶ ↷ Redo [🗔]│ (Ultra-thin auto-hiding header)
-├────────────────────────────────────────────────────────────────────────────┤
-│                                                                            │
-│                                                                            │
-│                                                                            │
-│                           ┌──────────────┐                                 │
-│                           │  RADIAL HUD  │                                 │
-│                           │  (Pop-up on  │                                 │
-│                           │   command)   │                                 │
-│                           └──────────────┘                                 │
-│                                                                            │
-│                                                                            │
-│                                                                            │
-│                                                                            │
-├────────────────────────────────────────────────────────────────────────────┤
-│ [▶ Play] [⏺ Rec] | 01  02 [03] 04  05  06 | [Onion Skin: ON]  [FPS: 24]   │ (Collapsible Animation Dock)
+│ [≡] ARCADE_FLOW_2D        [ZEN] [PRO STUDIO] [ANIMATION]   [LAYERS] [LAB]  │
+├───────┬────────────────────────────────────────────────────────────────────┤
+│[RAIL] │                                            [▭ RECT ○ CIRCLE ╱ LINE]│
+│ SIZE  │                                                                    │
+│ [===] │                                                                    │
+│ OPAC  │                        100% CANVAS VIEWPORT                        │
+│ [===] │                                                                    │
+│ COLOR │                    ┌─────────────────────────┐                     │
+│  (●)  │                    │   GAMING RADIAL HUD     │                     │
+│ SWAP  │                    │   (Prototype Dial)      │                     │
+│  (Q)  │                    └─────────────────────────┘                     │
+│       │                                                    [ZOOM: 100%]    │
+├───────┴────────────────────────────────────────────────────────────────────┤
+│ [▶ PLAY] [+ NEW FRAME] [⧉ DUP] | 01  02 [03] 04 | [☑ ONION SKIN]  [12 FPS] │
 └────────────────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## 2. Spring-Loaded Shortcut State Machine
+
+The interface utilizes momentary "spring-loaded" hotkeys to enable split-second task execution without disrupting continuous drawing flow:
+
+```
+┌────────────────────────────────┐
+│   ACTIVE DRAWING STATE         │
+│   (e.g., Drawing with 2B Pencil)│
+└───────────────┬────────────────┘
+                │
+                ├─────────────────────────────────────────┐
+                │ Press & Hold "E"                        │ Press & Hold "Z"
+                ▼                                         ▼
+┌────────────────────────────────┐        ┌────────────────────────────────┐
+│   SPRING-LOADED ERASER         │        │   SPRING-LOADED ZOOM/PAN       │
+│   Canvas is in Erase Mode;     │        │   Mouse wheel / drag zooms     │
+│   cursor transforms to eraser  │        │   canvas around focal point    │
+└───────────────┬────────────────┘        └───────────────┬────────────────┘
+                │                                         │
+                │ Release "E"                             │ Release "Z"
+                ▼                                         ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│   RETURN TO PREVIOUS TOOL STATE (Instantly in <10ms, Zero Clicks)        │
+└──────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 3. Tool Swapping & Undo State Engine
+- **`Q` or `X`**: Swaps current tool with previous tool (e.g., instant toggling between Inking Nib and Watercolor Blender).
+- **`Ctrl + Z` / `Cmd + Z`**: Canvas history pop restoring multi-layer states.
+- **`Ctrl + Y`**: Redo history push.
+- **Hold `Spacebar` / Right-Click**: Radial HUD blooms centered directly on cursor.

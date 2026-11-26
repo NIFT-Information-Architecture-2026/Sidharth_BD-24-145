@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ARCADEFLOW 2D - DESIGN TOKENS & RETRO-ARCADE STYLING
+   ARCADEFLOW 2D - DESIGN TOKENS & RETRO-ARCADE STYLING (PRO ENGINE)
    ========================================================================== */
 
 :root {
@@ -69,9 +69,11 @@
 [data-font="retro"] .hud-chip-title,
 [data-font="retro"] .hud-chip-stats,
 [data-font="retro"] .active-tool-indicator,
+[data-font="retro"] .rail-label,
+[data-font="retro"] .dialog-header,
 [data-font="retro"] label {
   font-family: var(--font-retro) !important;
-  font-size: 0.70rem !important;
+  font-size: 0.68rem !important;
   letter-spacing: 0.5px;
 }
 
@@ -200,21 +202,21 @@ body.grid-active #viewport {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .retro-btn {
   background: #FFFFFF;
   border: var(--border-thick);
   box-shadow: var(--shadow-hard-sm);
-  padding: 5px 10px;
-  font-size: 0.8rem;
+  padding: 5px 9px;
+  font-size: 0.76rem;
   font-weight: 700;
   cursor: pointer;
   border-radius: 4px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   transition: all 0.1s ease;
 }
 
@@ -223,17 +225,23 @@ body.grid-active #viewport {
   box-shadow: none;
 }
 
+.retro-btn.active {
+  background: var(--accent-primary);
+  color: var(--accent-contrast);
+  box-shadow: var(--shadow-hard-inset);
+}
+
 .retro-btn.danger {
   background: #FFE5E5;
 }
 
 .retro-btn.small {
-  padding: 3px 8px;
-  font-size: 0.72rem;
+  padding: 3px 7px;
+  font-size: 0.70rem;
 }
 
 /* ==========================================================================
-   CANVAS VIEWPORT
+   CANVAS VIEWPORT & TRANSFORM WRAPPER
    ========================================================================== */
 
 #viewport {
@@ -244,8 +252,19 @@ body.grid-active #viewport {
   cursor: crosshair;
 }
 
+#canvas-transform-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: 0 0;
+  transition: none;
+}
+
 #drawing-canvas,
-#onion-canvas {
+#onion-canvas,
+#overlay-canvas {
   position: absolute;
   top: 0;
   left: 0;
@@ -256,13 +275,18 @@ body.grid-active #viewport {
 }
 
 #drawing-canvas {
-  z-index: 1;
+  z-index: 2;
 }
 
 #onion-canvas {
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
   opacity: 0.35;
+}
+
+#overlay-canvas {
+  z-index: 3;
+  pointer-events: none;
 }
 
 /* Floating HUD Summon Pill */
@@ -277,10 +301,10 @@ body.grid-active #viewport {
   box-shadow: var(--shadow-hard-sm), var(--accent-glow);
   padding: 6px 16px;
   border-radius: 20px;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   cursor: pointer;
-  z-index: 10;
+  z-index: 25;
   transition: transform 0.15s ease, background 0.15s ease;
 }
 
@@ -290,14 +314,170 @@ body.grid-active #viewport {
   color: var(--accent-contrast);
 }
 
+/* Zoom Indicator Banner */
+#zoom-badge {
+  position: absolute;
+  bottom: 14px;
+  right: 16px;
+  background: #000000;
+  color: #FFFFFF;
+  border: 2px solid var(--accent-primary);
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 4px;
+  box-shadow: var(--shadow-hard-sm);
+  z-index: 20;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   PERSISTENT NON-DOMINANT HAND ERGONOMIC RAIL (ALWAYS VISIBLE)
+   ========================================================================== */
+
+#left-ergonomic-rail {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 58px;
+  background: #FFFFFF;
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 4px;
+  z-index: 35;
+  touch-action: none;
+}
+
+.rail-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.rail-label {
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #444444;
+  letter-spacing: 0.5px;
+}
+
+.rail-val {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #000000;
+}
+
+/* Vertical Sliders */
+.rail-slider-vertical {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 80px;
+  height: 6px;
+  background: #E0E0E0;
+  border: 1.5px solid #000000;
+  border-radius: 4px;
+  transform: rotate(-90deg);
+  margin: 38px 0;
+  cursor: pointer;
+}
+
+.rail-slider-vertical::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  border: 1.5px solid #000000;
+  box-shadow: var(--accent-glow);
+  cursor: pointer;
+}
+
+.rail-slider-vertical::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  border: 1.5px solid #000000;
+  box-shadow: var(--accent-glow);
+  cursor: pointer;
+}
+
+/* Color Disc in Rail */
+.rail-color-picker-wrapper {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard-sm);
+  overflow: hidden;
+  cursor: pointer;
+  background: #111111;
+}
+
+#brush-color-picker {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 60px;
+  height: 60px;
+  opacity: 0;
+  cursor: pointer;
+}
+
+#rail-color-disk {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #111111;
+  pointer-events: none;
+}
+
+/* Previous Tool Swap Button */
+#swap-tool-btn {
+  width: 44px;
+  height: 40px;
+  background: #FFF8E7;
+  border: 2px solid #000000;
+  box-shadow: var(--shadow-hard-sm);
+  border-radius: 6px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1.1;
+  transition: all 0.1s ease;
+}
+
+#swap-tool-btn:hover {
+  background: var(--accent-primary);
+  color: var(--accent-contrast);
+}
+
+#swap-tool-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+
 /* ==========================================================================
    GAMING-STYLE RADIAL HUD (PROTOTYPE INSPIRED)
    ========================================================================== */
 
 .radial-hud-container {
   position: absolute;
-  width: 320px;
-  height: 320px;
+  width: 330px;
+  height: 330px;
   transform: translate(-50%, -50%);
   pointer-events: none;
   z-index: 100;
@@ -307,13 +487,12 @@ body.grid-active #viewport {
   display: none !important;
 }
 
-/* Dark Frosted Glass Backplate */
 .hud-backdrop-glass {
   position: absolute;
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: rgba(18, 2, 35, 0.90);
+  background: rgba(18, 2, 35, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 3px solid #000000;
@@ -321,7 +500,6 @@ body.grid-active #viewport {
   pointer-events: auto;
 }
 
-/* Center Core with Brush Tip Silhouette & Reticle */
 .hud-center-core {
   position: absolute;
   width: 90px;
@@ -373,7 +551,6 @@ body.grid-active #viewport {
   transition: all 0.15s ease;
 }
 
-/* Radial Dial Ring & Slices */
 .hud-dial-ring {
   position: absolute;
   width: 100%;
@@ -405,22 +582,21 @@ body.grid-active #viewport {
 }
 
 .hud-slice .slice-tag {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 700;
   margin-top: 2px;
 }
 
-/* Polar Slot Positioning (8 equidistant nodes around 230px circle) */
+/* Polar Slot Positioning (8 nodes) */
 .hud-slice[data-angle="270"] { top: 12%; left: 50%; }   /* 12:00 North - Pencil */
 .hud-slice[data-angle="315"] { top: 22%; left: 78%; }   /* 1:30 - Ink */
 .hud-slice[data-angle="0"]   { top: 50%; left: 88%; }   /* 3:00 East - Eraser */
-.hud-slice[data-angle="45"]  { top: 78%; left: 78%; }   /* 4:30 - Color */
-.hud-slice[data-angle="90"]  { top: 88%; left: 50%; }   /* 6:00 South - Anim */
+.hud-slice[data-angle="45"]  { top: 78%; left: 78%; }   /* 4:30 - Shape */
+.hud-slice[data-angle="90"]  { top: 88%; left: 50%; }   /* 6:00 South - Lasso / Select */
 .hud-slice[data-angle="135"] { top: 78%; left: 22%; }   /* 7:30 - Smudge */
 .hud-slice[data-angle="180"] { top: 50%; left: 12%; }   /* 9:00 West - Paint */
 .hud-slice[data-angle="225"] { top: 22%; left: 22%; }   /* 10:30 - Charcoal */
 
-/* Hover & Active States */
 .hud-slice:hover,
 .hud-slice.active {
   background: var(--accent-primary) !important;
@@ -430,7 +606,6 @@ body.grid-active #viewport {
   z-index: 110;
 }
 
-/* Bottom Dynamic Readout Chip */
 .hud-bottom-chip {
   position: absolute;
   bottom: -46px;
@@ -467,50 +642,40 @@ body.grid-active #viewport {
 }
 
 /* ==========================================================================
-   FLOATING SLIDERS DOCK
+   SHAPE & SELECTION SUB-BAR
    ========================================================================== */
 
-.retro-slider-dock {
+#shape-options-bar {
   position: absolute;
-  top: 16px;
-  left: 16px;
+  top: 14px;
+  right: 16px;
   background: #FFFFFF;
   border: var(--border-thick);
   box-shadow: var(--shadow-hard);
-  padding: 10px 14px;
-  border-radius: 8px;
+  border-radius: 6px;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  gap: 4px;
+  padding: 6px;
   z-index: 30;
 }
 
-.retro-slider-dock.hidden {
+#shape-options-bar.hidden {
   display: none !important;
 }
 
-.slider-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.shape-btn {
+  background: #FFF8E7;
+  border: 1.5px solid #000000;
+  padding: 4px 8px;
   font-size: 0.72rem;
   font-weight: 700;
-}
-
-.slider-group input[type="range"] {
-  width: 90px;
-  accent-color: var(--accent-primary);
-  cursor: pointer;
-}
-
-.slider-group input[type="color"] {
-  border: 2px solid #000000;
-  width: 28px;
-  height: 28px;
   cursor: pointer;
   border-radius: 4px;
-  padding: 0;
-  background: transparent;
+}
+
+.shape-btn.active {
+  background: var(--accent-primary);
+  color: var(--accent-contrast);
 }
 
 /* ==========================================================================
@@ -575,7 +740,6 @@ body.grid-active #viewport {
   background: #FFFFFF;
 }
 
-/* Frame Scrubber Strip */
 .frame-strip-scroller {
   height: 70px;
   display: flex;
@@ -615,14 +779,14 @@ body.grid-active #viewport {
 }
 
 /* ==========================================================================
-   THEME LAB DIALOG (POP-UP)
+   MODAL WINDOWS & DIALOGS (BRUSH LAB, LAYERS, THEME)
    ========================================================================== */
 
 .retro-dialog {
   position: absolute;
   top: 56px;
   right: 16px;
-  width: 290px;
+  width: 310px;
   background: #FFFFFF;
   border: var(--border-thick);
   box-shadow: var(--shadow-hard);
@@ -657,10 +821,12 @@ body.grid-active #viewport {
 }
 
 .dialog-body {
-  padding: 14px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-height: 480px;
+  overflow-y: auto;
 }
 
 .setting-row {
@@ -690,4 +856,110 @@ body.grid-active #viewport {
 .swatch-btn.active {
   transform: scale(1.2);
   outline: 2px solid #000000;
+}
+
+/* ==========================================================================
+   BRUSH LAB DIALOG SPECIFIC
+   ========================================================================== */
+
+#brush-lab-modal {
+  width: 360px;
+}
+
+.scratchpad-container {
+  width: 100%;
+  height: 110px;
+  background: #FFF9E6;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+#scratchpad-canvas {
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
+.scratchpad-clear-btn {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+}
+
+.chip-selector-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.choice-chip {
+  background: #F0F0F0;
+  border: 1.5px solid #000000;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.choice-chip.active {
+  background: var(--accent-primary);
+  color: var(--accent-contrast);
+}
+
+/* ==========================================================================
+   LAYERS PANEL SPECIFIC
+   ========================================================================== */
+
+#layers-panel {
+  width: 290px;
+}
+
+.layers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.layer-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: #F7F7F7;
+  border: 2px solid #000000;
+  box-shadow: var(--shadow-hard-sm);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.layer-item.active {
+  background: #FFEAF4;
+  border-color: var(--accent-primary);
+}
+
+.layer-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.layer-eye {
+  cursor: pointer;
+}
+
+.layer-blend-badge {
+  font-size: 0.65rem;
+  background: #000000;
+  color: #FFFFFF;
+  padding: 1px 5px;
+  border-radius: 3px;
 }

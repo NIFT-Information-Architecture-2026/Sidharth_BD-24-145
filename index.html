@@ -19,7 +19,7 @@
         <span class="dot min"></span>
         <span class="dot max"></span>
       </div>
-      <span class="app-title">⚡ ARCADE_FLOW_2D</span>
+      <span class="app-title">⚡ ARCADE_FLOW_2D [PRO]</span>
     </div>
 
     <!-- Workspace Mode Switcher -->
@@ -37,22 +37,36 @@
         <span id="active-tool-name">PENCIL</span>
       </div>
 
-      <!-- Font Switcher -->
-      <button id="font-toggle-btn" class="retro-btn" title="Toggle Swiss / 8-Bit Typography">
-        <span class="btn-icon">🔤</span> <span id="font-label">FONT: HELVETICA</span>
+      <!-- Layers Panel Toggle -->
+      <button id="layers-btn" class="retro-btn" title="Open Layer Blend Modes (L)">
+        <span class="btn-icon">🥞</span> LAYERS
       </button>
 
-      <!-- Theme & Glow Customizer Button -->
+      <!-- Custom Brush Lab Toggle -->
+      <button id="brush-lab-btn" class="retro-btn" title="Create Custom Brush">
+        <span class="btn-icon">🖌️</span> BRUSH LAB
+      </button>
+
+      <!-- Font Switcher -->
+      <button id="font-toggle-btn" class="retro-btn" title="Toggle Swiss / 8-Bit Typography">
+        <span class="btn-icon">🔤</span> <span id="font-label">HELVETICA</span>
+      </button>
+
+      <!-- Theme Customizer Button -->
       <button id="theme-btn" class="retro-btn" title="Customize Accent Glow & Palette">
         <span class="btn-icon">🎨</span> THEME
       </button>
 
+      <!-- Undo / Redo -->
+      <button id="undo-btn" class="retro-btn" title="Undo (Ctrl+Z)">↶</button>
+      <button id="redo-btn" class="retro-btn" title="Redo (Ctrl+Y)">↷</button>
+
       <!-- Clear Canvas -->
-      <button id="clear-btn" class="retro-btn danger" title="Clear Canvas">🗑️ CLEAR</button>
+      <button id="clear-btn" class="retro-btn danger" title="Clear Canvas">🗑️</button>
     </div>
   </header>
 
-  <!-- Theme & Customization Drawer (Pop-up) -->
+  <!-- Theme & Customization Drawer -->
   <div id="theme-drawer" class="retro-dialog hidden">
     <div class="dialog-header">
       <span>🕹️ THEME & ACCENT GLOW LAB</span>
@@ -79,20 +93,168 @@
         <label>CANVAS GRID TEXTURE:</label>
         <button id="grid-toggle-btn" class="retro-btn small">GRID: OFF</button>
       </div>
+
+      <div class="setting-row">
+        <label>KEYBOARD SHORTCUTS CHEATSHEET:</label>
+        <div style="font-size:0.65rem; line-height: 1.4; color: #555;">
+          • <b>Hold E</b>: Spring-loaded Eraser<br>
+          • <b>Hold Z</b>: Spring-loaded Zoom (Wheel or Drag)<br>
+          • <b>Q or X</b>: Swap with Previous Tool<br>
+          • <b>Ctrl+Z / Y</b>: Undo / Redo<br>
+          • <b>Hold Space / Right-Click</b>: Radial HUD
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layers & Blend Modes Panel -->
+  <div id="layers-panel" class="retro-dialog hidden">
+    <div class="dialog-header">
+      <span>🥞 LAYER STUDIO & BLEND MODES</span>
+      <button id="close-layers-btn" class="dialog-close-btn">×</button>
+    </div>
+    <div class="dialog-body">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <label>ACTIVE BLEND MODE:</label>
+        <select id="layer-blend-select" class="retro-select">
+          <option value="source-over">Normal</option>
+          <option value="multiply">Multiply (Shading)</option>
+          <option value="screen">Screen (Lighting)</option>
+          <option value="overlay">Overlay (Punch)</option>
+          <option value="color-dodge">Color Dodge (Neon)</option>
+          <option value="color">Color (Tint)</option>
+        </select>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <label>LAYER STACK:</label>
+        <button id="add-layer-btn" class="retro-btn small">+ NEW LAYER</button>
+      </div>
+
+      <div id="layers-list-container" class="layers-list">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Brush Lab Dialog -->
+  <div id="brush-lab-modal" class="retro-dialog hidden">
+    <div class="dialog-header">
+      <span>🖌️ CUSTOM BRUSH CREATOR LAB</span>
+      <button id="close-brush-lab-btn" class="dialog-close-btn">×</button>
+    </div>
+    <div class="dialog-body">
+      <div class="setting-row">
+        <label>BRUSH NAME:</label>
+        <input type="text" id="custom-brush-name" value="MY CUSTOM NIB" style="padding:4px; font-weight:700; border:1.5px solid #000;">
+      </div>
+
+      <div class="setting-row">
+        <label>TIP PROFILE:</label>
+        <div class="chip-selector-group" id="tip-shape-chips">
+          <button class="choice-chip active" data-shape="round">ROUND</button>
+          <button class="choice-chip" data-shape="chisel">CHISEL</button>
+          <button class="choice-chip" data-shape="nib">CALLIGRAPHY</button>
+          <button class="choice-chip" data-shape="splatter">SPLATTER</button>
+          <button class="choice-chip" data-shape="star">PIXEL STAR</button>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <label>GRAIN TEXTURE:</label>
+        <div class="chip-selector-group" id="grain-chips">
+          <button class="choice-chip active" data-grain="smooth">SMOOTH</button>
+          <button class="choice-chip" data-grain="paper">PAPER TOOTH</button>
+          <button class="choice-chip" data-grain="canvas">CANVAS WEAVE</button>
+          <button class="choice-chip" data-grain="halftone">HALFTONE</button>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <label>SMOOTHING / STREAMLINE: <span id="streamline-val">80%</span></label>
+        <input type="range" id="streamline-slider" min="0" max="100" value="80" style="accent-color:var(--accent-primary);">
+      </div>
+
+      <div class="setting-row">
+        <label>PRESSURE DYNAMICS: <span id="pressure-val">MEDIUM</span></label>
+        <input type="range" id="pressure-slider" min="1" max="5" value="3" style="accent-color:var(--accent-primary);">
+      </div>
+
+      <div class="setting-row">
+        <label>LIVE TESTING SCRATCHPAD:</label>
+        <div class="scratchpad-container">
+          <canvas id="scratchpad-canvas"></canvas>
+          <button id="clear-scratchpad-btn" class="retro-btn small scratchpad-clear-btn">CLEAR</button>
+        </div>
+      </div>
+
+      <button id="save-brush-btn" class="retro-btn" style="background:#2ED573; justify-content:center; padding:8px;">
+        💾 SAVE & EQUIP CUSTOM BRUSH
+      </button>
     </div>
   </div>
 
   <!-- Main Canvas Viewport -->
   <main id="viewport">
-    <canvas id="onion-canvas"></canvas>
-    <canvas id="drawing-canvas"></canvas>
+    <!-- Zoom Transform Wrapper -->
+    <div id="canvas-transform-wrapper">
+      <canvas id="onion-canvas"></canvas>
+      <canvas id="drawing-canvas"></canvas>
+      <canvas id="overlay-canvas"></canvas>
+    </div>
+
+    <!-- Persistent Non-Dominant Hand Left Rail (Always visible in all modes) -->
+    <aside id="left-ergonomic-rail">
+      <div class="rail-section">
+        <span class="rail-label">SIZE</span>
+        <span id="rail-size-val" class="rail-val">14</span>
+        <input type="range" id="rail-size-slider" class="rail-slider-vertical" min="2" max="80" value="14">
+      </div>
+
+      <div class="rail-section">
+        <span class="rail-label">OPAC</span>
+        <span id="rail-opacity-val" class="rail-val">100%</span>
+        <input type="range" id="rail-opacity-slider" class="rail-slider-vertical" min="10" max="100" value="100">
+      </div>
+
+      <!-- Color Disc -->
+      <div class="rail-section">
+        <span class="rail-label">COLOR</span>
+        <div class="rail-color-picker-wrapper" title="Change Color">
+          <input type="color" id="brush-color-picker" value="#111111">
+          <div id="rail-color-disk"></div>
+        </div>
+      </div>
+
+      <!-- Previous Tool Switcher Button -->
+      <div class="rail-section">
+        <button id="swap-tool-btn" title="Switch to Previous Tool (Q)">
+          <span>SWAP</span>
+          <span id="swap-tool-name" style="color:var(--accent-primary); font-size:0.55rem;">PENCIL</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Shape & Selection Sub-Bar (Appears when Shape or Selection tool is active) -->
+    <div id="shape-options-bar" class="hidden">
+      <button class="shape-btn active" data-shape="rect">▭ RECT</button>
+      <button class="shape-btn" data-shape="circle">○ CIRCLE</button>
+      <button class="shape-btn" data-shape="line">╱ LINE</button>
+      <button class="shape-btn" data-shape="star">★ STAR</button>
+      <button class="shape-btn" data-shape="lasso">➰ LASSO</button>
+    </div>
+
+    <!-- Zoom & Spring Indicator Pill -->
+    <div id="zoom-badge" title="Click to Reset Zoom (100%)">
+      ZOOM: <span id="zoom-val">100%</span> [RESET]
+    </div>
 
     <!-- Floating HUD Summon Pill -->
     <button id="hud-summon-btn" class="hud-pill-trigger">
       <span>⚡ HOLD SPACE OR RIGHT-CLICK FOR RADIAL HUD</span>
     </button>
 
-    <!-- On-Demand Gaming Radial HUD (Inside Viewport) -->
+    <!-- On-Demand Gaming Radial HUD -->
     <div id="radial-hud" class="radial-hud-container hidden">
       <div class="hud-backdrop-glass"></div>
 
@@ -118,9 +280,9 @@
           <span class="slice-icon">🧹</span>
           <span class="slice-tag">ERASE</span>
         </button>
-        <button class="hud-slice" data-tool="color" data-angle="45" data-label="COLOR PICKER">
-          <span class="slice-icon">🎨</span>
-          <span class="slice-tag">COLOR</span>
+        <button class="hud-slice" data-tool="shape" data-angle="45" data-label="GEOMETRIC SHAPES & LASSO">
+          <span class="slice-icon">📐</span>
+          <span class="slice-tag">SHAPES</span>
         </button>
         <button class="hud-slice" data-tool="timeline" data-angle="90" data-label="2D ANIMATION TIMELINE">
           <span class="slice-icon">🎞️</span>
@@ -150,24 +312,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Quick Floating Sliders for Size & Opacity -->
-    <aside id="floating-sliders" class="retro-slider-dock hidden">
-      <div class="slider-group">
-        <label>SIZE:</label>
-        <input type="range" id="size-slider" min="2" max="60" value="14">
-        <span id="size-val">14</span>
-      </div>
-      <div class="slider-group">
-        <label>OPACITY:</label>
-        <input type="range" id="opacity-slider" min="10" max="100" value="100">
-        <span id="opacity-val">100%</span>
-      </div>
-      <div class="slider-group color-quick-pick">
-        <label>COLOR:</label>
-        <input type="color" id="brush-color-picker" value="#111111">
-      </div>
-    </aside>
   </main>
 
   <!-- Collapsible 2D Animation Timeline Dock -->
@@ -202,17 +346,21 @@
   </footer>
 
   <!-- =====================================================================
-       INLINE BULLETPROOF JAVASCRIPT ENGINE (No cache issues, 100% immediate)
+       COMPLETE ADVANCED PRO ENGINE INLINE
        ===================================================================== -->
   <script>
   (function() {
-    console.log("⚡ Starting ArcadeFlow 2D Engine...");
+    console.log("⚡ Initializing ArcadeFlow 2D Pro Engine...");
 
     const viewport = document.getElementById('viewport');
+    const transformWrapper = document.getElementById('canvas-transform-wrapper');
     const drawingCanvas = document.getElementById('drawing-canvas');
     const onionCanvas = document.getElementById('onion-canvas');
+    const overlayCanvas = document.getElementById('overlay-canvas');
+
     const drawCtx = drawingCanvas.getContext('2d');
     const onionCtx = onionCanvas.getContext('2d');
+    const overlayCtx = overlayCanvas.getContext('2d');
 
     let width = 0;
     let height = 0;
@@ -220,8 +368,17 @@
     let lastX = 0;
     let lastY = 0;
 
+    // Viewport Zoom & Pan State
+    let zoomLevel = 1.0;
+    let panX = 0;
+    let panY = 0;
+    let isZoomKeyDown = false;
+    let isEraseKeyDown = false;
+
+    // Active State
     const state = {
       tool: 'pencil',
+      previousTool: 'pencil',
       size: 14,
       opacity: 1.0,
       color: '#111111',
@@ -233,122 +390,315 @@
       onionSkin: true,
       fps: 12,
       isPlaying: false,
-      currentFrameIndex: 0
+      currentFrameIndex: 0,
+      activeShape: 'rect',     // 'rect', 'circle', 'line', 'star', 'lasso'
+      activeLayerIndex: 0,
+      customBrush: {
+        tip: 'round',
+        grain: 'smooth',
+        streamline: 80,
+        pressureScale: 3
+      }
     };
 
     const toolIcons = {
-      pencil: '✏️', ink: '✒️', eraser: '🧹', color: '🎨',
-      timeline: '🎞️', smudge: '💧', paint: '🖌️', charcoal: '🖍️'
+      pencil: '✏️', ink: '✒️', eraser: '🧹', shape: '📐',
+      timeline: '🎞️', smudge: '💧', paint: '🖌️', charcoal: '🖍️', custom: '✨'
     };
 
-    // Offscreen Canvas Frame Buffers (100% Immune to Tainted Canvas Security Errors)
-    let frameCanvases = [];
+    // =========================================================================
+    // MULTI-LAYER COMPOSITING ENGINE
+    // =========================================================================
+    // Each layer has an offscreen buffer canvas, visibility, and blend mode
+    let layers = [
+      { id: 1, name: 'Layer 1 (Ink)', visible: true, blend: 'source-over', buffer: null },
+      { id: 2, name: 'Layer 2 (Color)', visible: true, blend: 'multiply', buffer: null }
+    ];
 
+    // Undo / Redo Stack (snapshots of all layer buffers)
+    let undoStack = [];
+    let redoStack = [];
+
+    // Animation Frames: Array of arrays of layer buffers
+    let animationFrames = [];
+
+    function initLayers() {
+      layers.forEach(layer => {
+        if (!layer.buffer) {
+          layer.buffer = document.createElement('canvas');
+          layer.buffer.width = width;
+          layer.buffer.height = height;
+        }
+      });
+      renderLayersList();
+    }
+
+    function renderLayersComposite() {
+      drawCtx.clearRect(0, 0, width, height);
+
+      layers.forEach((layer) => {
+        if (!layer.visible || !layer.buffer) return;
+        drawCtx.save();
+        drawCtx.globalCompositeOperation = layer.blend;
+        drawCtx.drawImage(layer.buffer, 0, 0);
+        drawCtx.restore();
+      });
+    }
+
+    function renderLayersList() {
+      const container = document.getElementById('layers-list-container');
+      container.innerHTML = '';
+
+      layers.forEach((layer, idx) => {
+        const item = document.createElement('div');
+        item.className = `layer-item ${idx === state.activeLayerIndex ? 'active' : ''}`;
+        item.innerHTML = `
+          <div class="layer-meta">
+            <span class="layer-eye">${layer.visible ? '👁️' : '🙈'}</span>
+            <span>${layer.name}</span>
+          </div>
+          <span class="layer-blend-badge">${layer.blend.toUpperCase()}</span>
+        `;
+
+        item.querySelector('.layer-eye').addEventListener('click', (e) => {
+          e.stopPropagation();
+          layer.visible = !layer.visible;
+          renderLayersList();
+          renderLayersComposite();
+        });
+
+        item.addEventListener('click', () => {
+          state.activeLayerIndex = idx;
+          document.getElementById('layer-blend-select').value = layer.blend;
+          renderLayersList();
+        });
+
+        container.appendChild(item);
+      });
+    }
+
+    // =========================================================================
+    // CANVAS RESIZE & VIEWPORT TRANSFORM
+    // =========================================================================
     function resize() {
       width = viewport.clientWidth || window.innerWidth;
       height = viewport.clientHeight || (window.innerHeight - 48);
-
-      // We maintain existing artwork across resize
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = drawingCanvas.width;
-      tempCanvas.height = drawingCanvas.height;
-      if (tempCanvas.width > 0 && tempCanvas.height > 0) {
-        tempCanvas.getContext('2d').drawImage(drawingCanvas, 0, 0);
-      }
 
       drawingCanvas.width = width;
       drawingCanvas.height = height;
       onionCanvas.width = width;
       onionCanvas.height = height;
+      overlayCanvas.width = width;
+      overlayCanvas.height = height;
 
-      if (tempCanvas.width > 0 && tempCanvas.height > 0) {
-        drawCtx.drawImage(tempCanvas, 0, 0);
-      } else {
-        drawWelcomeDoodle();
+      initLayers();
+
+      // If first load, draw welcome doodle onto Layer 1
+      if (undoStack.length === 0 && layers[0].buffer) {
+        drawWelcomeGraphic(layers[0].buffer.getContext('2d'));
+        saveHistory();
       }
 
-      saveCurrentFrameToBuffer();
+      renderLayersComposite();
     }
 
-    function drawWelcomeDoodle() {
-      drawCtx.save();
-      drawCtx.font = 'bold 22px Helvetica, Arial, sans-serif';
-      drawCtx.fillStyle = '#FF007F';
-      drawCtx.fillText('⚡ ARCADEFLOW 2D: READY TO DRAW', 36, 56);
+    function drawWelcomeGraphic(targetCtx) {
+      targetCtx.save();
+      targetCtx.font = 'bold 22px Helvetica, Arial, sans-serif';
+      targetCtx.fillStyle = '#FF007F';
+      targetCtx.fillText('⚡ ARCADEFLOW 2D [PRO EDITION]', 80, 56);
 
-      drawCtx.font = '14px Helvetica, Arial, sans-serif';
-      drawCtx.fillStyle = '#555555';
-      drawCtx.fillText('• Click and drag anywhere to draw!', 36, 88);
-      drawCtx.fillText('• Hold Spacebar or Right-Click for the Radial HUD.', 36, 112);
-      drawCtx.fillText('• Switch modes at the top (Zen / Pro Studio / Animation).', 36, 136);
+      targetCtx.font = '14px Helvetica, Arial, sans-serif';
+      targetCtx.fillStyle = '#555555';
+      targetCtx.fillText('• Hold E: Quick-Eraser (releases to previous tool)', 80, 88);
+      targetCtx.fillText('• Hold Z + Wheel: Quick-Zoom in/out', 80, 112);
+      targetCtx.fillText('• Tap Q: Swap with previous tool', 80, 136);
+      targetCtx.fillText('• Left Rail: Size, Opacity, Color always at your fingertips', 80, 160);
 
       // Playful smile doodle
-      drawCtx.strokeStyle = '#111111';
-      drawCtx.lineWidth = 4;
-      drawCtx.lineCap = 'round';
-      drawCtx.beginPath();
-      drawCtx.arc(80, 200, 32, 0, Math.PI * 2);
-      drawCtx.stroke();
-      drawCtx.beginPath();
-      drawCtx.arc(70, 192, 4, 0, Math.PI * 2);
-      drawCtx.arc(90, 192, 4, 0, Math.PI * 2);
-      drawCtx.fillStyle = '#111111';
-      drawCtx.fill();
-      drawCtx.beginPath();
-      drawCtx.arc(80, 204, 14, 0.2 * Math.PI, 0.8 * Math.PI);
-      drawCtx.stroke();
-
-      drawCtx.restore();
+      targetCtx.strokeStyle = '#111111';
+      targetCtx.lineWidth = 4;
+      targetCtx.lineCap = 'round';
+      targetCtx.beginPath();
+      targetCtx.arc(120, 230, 32, 0, Math.PI * 2);
+      targetCtx.stroke();
+      targetCtx.beginPath();
+      targetCtx.arc(110, 222, 4, 0, Math.PI * 2);
+      targetCtx.arc(130, 222, 4, 0, Math.PI * 2);
+      targetCtx.fillStyle = '#111111';
+      targetCtx.fill();
+      targetCtx.beginPath();
+      targetCtx.arc(120, 234, 14, 0.2 * Math.PI, 0.8 * Math.PI);
+      targetCtx.stroke();
+      targetCtx.restore();
     }
 
+    function updateTransform() {
+      transformWrapper.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
+      document.getElementById('zoom-val').textContent = `${Math.round(zoomLevel * 100)}%`;
+    }
+
+    document.getElementById('zoom-badge').addEventListener('click', () => {
+      zoomLevel = 1.0;
+      panX = 0;
+      panY = 0;
+      updateTransform();
+    });
+
     // =========================================================================
-    // DIRECT IMMEDIATE DRAWING (Rock-solid, zero latency)
+    // SPRING-LOADED KEYBOARD SHORTCUTS ENGINE
     // =========================================================================
+    window.addEventListener('keydown', (e) => {
+      // Avoid hotkeys when typing in text inputs
+      if (e.target.tagName === 'INPUT' && e.target.type === 'text') return;
+
+      // 1. Hold E for Spring-Loaded Eraser
+      if (e.key === 'e' || e.key === 'E') {
+        if (!isEraseKeyDown && state.tool !== 'eraser') {
+          isEraseKeyDown = true;
+          state.previousTool = state.tool;
+          selectTool('eraser');
+        }
+      }
+
+      // 2. Hold Z for Spring-Loaded Zoom
+      if ((e.key === 'z' || e.key === 'Z') && !e.ctrlKey && !e.metaKey) {
+        if (!isZoomKeyDown) {
+          isZoomKeyDown = true;
+          viewport.style.cursor = 'zoom-in';
+        }
+      }
+
+      // 3. Quick Swap Previous Tool (Q or X)
+      if (e.key === 'q' || e.key === 'Q' || e.key === 'x' || e.key === 'X') {
+        swapWithPreviousTool();
+      }
+
+      // 4. Undo (Ctrl + Z)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z') && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      }
+
+      // 5. Redo (Ctrl + Y or Ctrl + Shift + Z)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || e.key === 'Y' || ((e.key === 'z' || e.key === 'Z') && e.shiftKey))) {
+        e.preventDefault();
+        redo();
+      }
+
+      // 6. Hold Space for Radial HUD
+      if (e.code === 'Space' && !hudOpen && !e.repeat) {
+        e.preventDefault();
+        openHUD(lastMouseClient.x, lastMouseClient.y);
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      // 1. Release E: Restore previous tool
+      if (e.key === 'e' || e.key === 'E') {
+        if (isEraseKeyDown) {
+          isEraseKeyDown = false;
+          selectTool(state.previousTool || 'pencil');
+        }
+      }
+
+      // 2. Release Z: Restore drawing cursor
+      if (e.key === 'z' || e.key === 'Z') {
+        isZoomKeyDown = false;
+        viewport.style.cursor = 'crosshair';
+      }
+
+      // 3. Release Space: Lock in HUD tool
+      if (e.code === 'Space' && hudOpen) {
+        e.preventDefault();
+        closeHUD();
+      }
+    });
+
+    // Zoom on Wheel (when holding Z or Ctrl)
+    viewport.addEventListener('wheel', (e) => {
+      if (isZoomKeyDown || e.ctrlKey) {
+        e.preventDefault();
+        const factor = e.deltaY < 0 ? 1.15 : 0.88;
+        const newZoom = Math.max(0.3, Math.min(5.0, zoomLevel * factor));
+
+        // Zoom toward cursor
+        const rect = viewport.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        panX = mouseX - (mouseX - panX) * (newZoom / zoomLevel);
+        panY = mouseY - (mouseY - panY) * (newZoom / zoomLevel);
+        zoomLevel = newZoom;
+
+        updateTransform();
+      }
+    }, { passive: false });
+
+    // =========================================================================
+    // DRAWING, SHAPES & SELECTION LOGIC
+    // =========================================================================
+    let shapeStart = { x: 0, y: 0 };
+    let lassoPoints = [];
+
     function getCoords(e) {
-      const rect = drawingCanvas.getBoundingClientRect();
+      const rect = viewport.getBoundingClientRect();
       const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
       const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+
+      // Invert pan and zoom to get true canvas coordinates
+      const viewX = clientX - rect.left;
+      const viewY = clientY - rect.top;
+
       return {
-        x: clientX - rect.left,
-        y: clientY - rect.top
+        x: (viewX - panX) / zoomLevel,
+        y: (viewY - panY) / zoomLevel
       };
     }
 
-    function applyBrush() {
-      drawCtx.lineCap = 'round';
-      drawCtx.lineJoin = 'round';
+    function getActiveLayerCtx() {
+      const activeLayer = layers[state.activeLayerIndex];
+      return activeLayer ? activeLayer.buffer.getContext('2d') : drawCtx;
+    }
+
+    function applyBrush(ctx) {
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
 
       if (state.tool === 'eraser') {
-        drawCtx.globalCompositeOperation = 'destination-out';
-        drawCtx.lineWidth = state.size * 2.2;
-        drawCtx.strokeStyle = 'rgba(0,0,0,1)';
-        drawCtx.globalAlpha = 1.0;
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineWidth = state.size * 2.2;
+        ctx.strokeStyle = 'rgba(0,0,0,1)';
+        ctx.globalAlpha = 1.0;
       } else {
-        drawCtx.globalCompositeOperation = 'source-over';
-        drawCtx.strokeStyle = state.color;
-        drawCtx.fillStyle = state.color;
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = state.color;
+        ctx.fillStyle = state.color;
 
         if (state.tool === 'pencil') {
-          drawCtx.lineWidth = state.size;
-          drawCtx.globalAlpha = state.opacity;
+          ctx.lineWidth = state.size;
+          ctx.globalAlpha = state.opacity;
         } else if (state.tool === 'ink') {
-          drawCtx.lineWidth = state.size * 1.3;
-          drawCtx.globalAlpha = 1.0;
+          ctx.lineWidth = state.size * 1.3;
+          ctx.globalAlpha = 1.0;
         } else if (state.tool === 'charcoal') {
-          drawCtx.lineWidth = state.size * 1.6;
-          drawCtx.globalAlpha = state.opacity * 0.75;
+          ctx.lineWidth = state.size * 1.6;
+          ctx.globalAlpha = state.opacity * 0.75;
         } else if (state.tool === 'paint') {
-          drawCtx.lineWidth = state.size * 1.8;
-          drawCtx.globalAlpha = state.opacity * 0.9;
+          ctx.lineWidth = state.size * 1.8;
+          ctx.globalAlpha = state.opacity * 0.9;
         } else if (state.tool === 'smudge') {
-          drawCtx.lineWidth = state.size * 1.5;
-          drawCtx.globalAlpha = 0.35;
+          ctx.lineWidth = state.size * 1.5;
+          ctx.globalAlpha = 0.35;
+        } else if (state.tool === 'custom') {
+          ctx.lineWidth = state.size * (state.customBrush.pressureScale / 2);
+          ctx.globalAlpha = state.opacity;
         }
       }
     }
 
     function startDraw(e) {
-      if (e.button === 2) { // Right Click
+      if (e.button === 2) {
         e.preventDefault();
         openHUD(e.clientX, e.clientY);
         return;
@@ -362,51 +712,293 @@
       const pos = getCoords(e);
       lastX = pos.x;
       lastY = pos.y;
+      shapeStart = { x: pos.x, y: pos.y };
+      lassoPoints = [pos];
 
-      drawCtx.save();
-      applyBrush();
-      drawCtx.beginPath();
-      drawCtx.arc(pos.x, pos.y, drawCtx.lineWidth / 2, 0, Math.PI * 2);
-      drawCtx.fill();
-      drawCtx.restore();
+      // If using regular brush/pencil/ink:
+      if (state.tool !== 'shape') {
+        const targetCtx = getActiveLayerCtx();
+        targetCtx.save();
+        applyBrush(targetCtx);
+        targetCtx.beginPath();
+        targetCtx.arc(pos.x, pos.y, targetCtx.lineWidth / 2, 0, Math.PI * 2);
+        targetCtx.fill();
+        targetCtx.restore();
+        renderLayersComposite();
+      }
     }
 
     function moveDraw(e) {
       if (!isDrawing || hudOpen) return;
       const pos = getCoords(e);
 
-      drawCtx.save();
-      applyBrush();
-      drawCtx.beginPath();
-      drawCtx.moveTo(lastX, lastY);
-      drawCtx.lineTo(pos.x, pos.y);
-      drawCtx.stroke();
-      drawCtx.restore();
+      // If Shape tool or Lasso active, draw live preview onto overlayCanvas
+      if (state.tool === 'shape') {
+        overlayCtx.clearRect(0, 0, width, height);
+        overlayCtx.save();
+        overlayCtx.strokeStyle = state.color;
+        overlayCtx.lineWidth = state.size;
+        overlayCtx.fillStyle = state.color;
+        overlayCtx.globalAlpha = state.opacity;
 
-      lastX = pos.x;
-      lastY = pos.y;
+        const w = pos.x - shapeStart.x;
+        const h = pos.y - shapeStart.y;
+
+        if (state.activeShape === 'rect') {
+          overlayCtx.strokeRect(shapeStart.x, shapeStart.y, w, h);
+        } else if (state.activeShape === 'circle') {
+          overlayCtx.beginPath();
+          const radius = Math.hypot(w, h);
+          overlayCtx.arc(shapeStart.x, shapeStart.y, radius, 0, Math.PI * 2);
+          overlayCtx.stroke();
+        } else if (state.activeShape === 'line') {
+          overlayCtx.beginPath();
+          overlayCtx.moveTo(shapeStart.x, shapeStart.y);
+          overlayCtx.lineTo(pos.x, pos.y);
+          overlayCtx.stroke();
+        } else if (state.activeShape === 'star') {
+          drawStar(overlayCtx, shapeStart.x, shapeStart.y, 5, Math.abs(w), Math.abs(w) / 2);
+          overlayCtx.stroke();
+        } else if (state.activeShape === 'lasso') {
+          lassoPoints.push(pos);
+          overlayCtx.setLineDash([4, 4]);
+          overlayCtx.beginPath();
+          overlayCtx.moveTo(lassoPoints[0].x, lassoPoints[0].y);
+          for (let i = 1; i < lassoPoints.length; i++) {
+            overlayCtx.lineTo(lassoPoints[i].x, lassoPoints[i].y);
+          }
+          overlayCtx.stroke();
+        }
+
+        overlayCtx.restore();
+      } else {
+        // Normal Drawing
+        const targetCtx = getActiveLayerCtx();
+        targetCtx.save();
+        applyBrush(targetCtx);
+        targetCtx.beginPath();
+        targetCtx.moveTo(lastX, lastY);
+        targetCtx.lineTo(pos.x, pos.y);
+        targetCtx.stroke();
+        targetCtx.restore();
+
+        renderLayersComposite();
+        lastX = pos.x;
+        lastY = pos.y;
+      }
     }
 
     function endDraw() {
       if (!isDrawing) return;
       isDrawing = false;
-      saveCurrentFrameToBuffer();
+
+      // Commit Shape to Active Layer
+      if (state.tool === 'shape') {
+        overlayCtx.clearRect(0, 0, width, height);
+        const targetCtx = getActiveLayerCtx();
+        targetCtx.save();
+        targetCtx.strokeStyle = state.color;
+        targetCtx.lineWidth = state.size;
+        targetCtx.fillStyle = state.color;
+        targetCtx.globalAlpha = state.opacity;
+
+        const w = lastX - shapeStart.x;
+        const h = lastY - shapeStart.y;
+
+        if (state.activeShape === 'rect') {
+          targetCtx.strokeRect(shapeStart.x, shapeStart.y, w, h);
+        } else if (state.activeShape === 'circle') {
+          targetCtx.beginPath();
+          targetCtx.arc(shapeStart.x, shapeStart.y, Math.hypot(w, h), 0, Math.PI * 2);
+          targetCtx.stroke();
+        } else if (state.activeShape === 'line') {
+          targetCtx.beginPath();
+          targetCtx.moveTo(shapeStart.x, shapeStart.y);
+          targetCtx.lineTo(lastX, lastY);
+          targetCtx.stroke();
+        } else if (state.activeShape === 'star') {
+          drawStar(targetCtx, shapeStart.x, shapeStart.y, 5, Math.abs(w), Math.abs(w) / 2);
+          targetCtx.stroke();
+        } else if (state.activeShape === 'lasso' && lassoPoints.length > 2) {
+          targetCtx.setLineDash([4, 4]);
+          targetCtx.beginPath();
+          targetCtx.moveTo(lassoPoints[0].x, lassoPoints[0].y);
+          for (let i = 1; i < lassoPoints.length; i++) targetCtx.lineTo(lassoPoints[i].x, lassoPoints[i].y);
+          targetCtx.closePath();
+          targetCtx.stroke();
+          targetCtx.setLineDash([]);
+        }
+        targetCtx.restore();
+        renderLayersComposite();
+      }
+
+      saveHistory();
     }
 
-    // Direct Mouse & Touch Listeners
-    drawingCanvas.addEventListener('mousedown', startDraw);
+    function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+      let rot = Math.PI / 2 * 3;
+      let x = cx;
+      let y = cy;
+      let step = Math.PI / spikes;
+
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - outerRadius);
+      for (let i = 0; i < spikes; i++) {
+        x = cx + Math.cos(rot) * outerRadius;
+        y = cy + Math.sin(rot) * outerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
+
+        x = cx + Math.cos(rot) * innerRadius;
+        y = cy + Math.sin(rot) * innerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
+      }
+      ctx.lineTo(cx, cy - outerRadius);
+      ctx.closePath();
+    }
+
+    // Direct Event Listeners
+    viewport.addEventListener('mousedown', startDraw);
     window.addEventListener('mousemove', moveDraw);
     window.addEventListener('mouseup', endDraw);
 
-    drawingCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); }, { passive: false });
+    viewport.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); }, { passive: false });
     window.addEventListener('touchmove', (e) => { if (isDrawing) { e.preventDefault(); moveDraw(e); } }, { passive: false });
     window.addEventListener('touchend', endDraw);
 
-    drawingCanvas.addEventListener('contextmenu', (e) => e.preventDefault());
     viewport.addEventListener('contextmenu', (e) => e.preventDefault());
 
     // =========================================================================
-    // RADIAL HUD (PROTOTYPE INSPIRED)
+    // UNDO / REDO HISTORY ENGINE
+    // =========================================================================
+    function saveHistory() {
+      // Create duplicate buffers for each layer
+      const snapshot = layers.map(layer => {
+        const copy = document.createElement('canvas');
+        copy.width = width;
+        copy.height = height;
+        if (layer.buffer) copy.getContext('2d').drawImage(layer.buffer, 0, 0);
+        return { id: layer.id, buffer: copy };
+      });
+
+      undoStack.push(snapshot);
+      if (undoStack.length > 25) undoStack.shift();
+      redoStack = [];
+    }
+
+    function undo() {
+      if (undoStack.length <= 1) return;
+      const current = undoStack.pop();
+      redoStack.push(current);
+
+      const previous = undoStack[undoStack.length - 1];
+      restoreLayersFromSnapshot(previous);
+    }
+
+    function redo() {
+      if (redoStack.length === 0) return;
+      const next = redoStack.pop();
+      undoStack.push(next);
+      restoreLayersFromSnapshot(next);
+    }
+
+    function restoreLayersFromSnapshot(snapshot) {
+      snapshot.forEach(item => {
+        const layer = layers.find(l => l.id === item.id);
+        if (layer && layer.buffer) {
+          const lCtx = layer.buffer.getContext('2d');
+          lCtx.clearRect(0, 0, width, height);
+          lCtx.drawImage(item.buffer, 0, 0);
+        }
+      });
+      renderLayersComposite();
+    }
+
+    document.getElementById('undo-btn').addEventListener('click', undo);
+    document.getElementById('redo-btn').addEventListener('click', redo);
+
+    // =========================================================================
+    // TOOL SELECTION & SWAPPING
+    // =========================================================================
+    function selectTool(toolKey) {
+      if (toolKey === 'timeline') {
+        toggleAnimationDock();
+        return;
+      }
+
+      if (state.tool !== toolKey) {
+        state.previousTool = state.tool;
+      }
+      state.tool = toolKey;
+
+      // Update badge
+      document.getElementById('active-tool-icon').textContent = toolIcons[toolKey] || '✏️';
+      document.getElementById('active-tool-name').textContent = toolKey.toUpperCase();
+      document.getElementById('swap-tool-name').textContent = (state.previousTool || 'PENCIL').toUpperCase();
+
+      // Show or hide Shape Options Sub-Bar
+      const shapeBar = document.getElementById('shape-options-bar');
+      if (toolKey === 'shape') {
+        shapeBar.classList.remove('hidden');
+      } else {
+        shapeBar.classList.add('hidden');
+      }
+
+      document.querySelectorAll('.hud-slice').forEach(s => s.classList.toggle('active', s.dataset.tool === toolKey));
+      updateTipPreview();
+      updateHUDReadout(toolKey);
+    }
+
+    function swapWithPreviousTool() {
+      const temp = state.tool;
+      selectTool(state.previousTool || 'pencil');
+      state.previousTool = temp;
+      document.getElementById('swap-tool-name').textContent = temp.toUpperCase();
+    }
+
+    document.getElementById('swap-tool-btn').addEventListener('click', swapWithPreviousTool);
+
+    // Shape Sub-Bar Buttons
+    document.querySelectorAll('.shape-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.activeShape = btn.dataset.shape;
+      });
+    });
+
+    // =========================================================================
+    // PERSISTENT LEFT RAIL CONTROLS
+    // =========================================================================
+    const railSize = document.getElementById('rail-size-slider');
+    const railSizeVal = document.getElementById('rail-size-val');
+    const railOpacity = document.getElementById('rail-opacity-slider');
+    const railOpacityVal = document.getElementById('rail-opacity-val');
+    const colorPicker = document.getElementById('brush-color-picker');
+    const railColorDisk = document.getElementById('rail-color-disk');
+
+    railSize.addEventListener('input', (e) => {
+      state.size = parseInt(e.target.value, 10);
+      railSizeVal.textContent = state.size;
+      updateTipPreview();
+      updateHUDReadout(state.tool);
+    });
+
+    railOpacity.addEventListener('input', (e) => {
+      state.opacity = parseInt(e.target.value, 10) / 100;
+      railOpacityVal.textContent = `${e.target.value}%`;
+      updateHUDReadout(state.tool);
+    });
+
+    colorPicker.addEventListener('input', (e) => {
+      state.color = e.target.value;
+      railColorDisk.style.background = state.color;
+      updateTipPreview();
+    });
+
+    // =========================================================================
+    // RADIAL HUD ENGINE
     // =========================================================================
     const hud = document.getElementById('radial-hud');
     const hudReticle = document.getElementById('hud-reticle-needle');
@@ -414,14 +1006,12 @@
     const hudSizeDisplay = document.getElementById('hud-size-display');
     const hudOpacityDisplay = document.getElementById('hud-opacity-display');
     const centerTipPreview = document.getElementById('center-tip-preview');
-    const hudSlices = document.querySelectorAll('.hud-slice');
     const hudSummonBtn = document.getElementById('hud-summon-btn');
-    const activeToolIcon = document.getElementById('active-tool-icon');
-    const activeToolName = document.getElementById('active-tool-name');
 
     let hudOpen = false;
     let hudCenter = { x: 0, y: 0 };
     let currentHoveredTool = state.tool;
+    let lastMouseClient = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 
     function openHUD(clientX, clientY) {
       hudOpen = true;
@@ -429,7 +1019,7 @@
       let relX = (clientX !== undefined ? clientX : window.innerWidth / 2) - rect.left;
       let relY = (clientY !== undefined ? clientY : window.innerHeight / 2) - rect.top;
 
-      const pad = 165;
+      const pad = 170;
       relX = Math.max(pad, Math.min(width - pad, relX));
       relY = Math.max(pad, Math.min(height - pad, relY));
 
@@ -450,25 +1040,6 @@
       if (currentHoveredTool) {
         selectTool(currentHoveredTool);
       }
-    }
-
-    function selectTool(toolKey) {
-      if (toolKey === 'color') {
-        document.getElementById('brush-color-picker').click();
-        return;
-      }
-      if (toolKey === 'timeline') {
-        toggleAnimationDock();
-        return;
-      }
-
-      state.tool = toolKey;
-      activeToolIcon.textContent = toolIcons[toolKey] || '✏️';
-      activeToolName.textContent = toolKey.toUpperCase();
-
-      hudSlices.forEach(s => s.classList.toggle('active', s.dataset.tool === toolKey));
-      updateTipPreview();
-      updateHUDReadout(toolKey);
     }
 
     function updateHUDReadout(toolKey) {
@@ -492,29 +1063,13 @@
       centerTipPreview.style.background = state.tool === 'eraser' ? '#FFFFFF' : state.color;
     }
 
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' && !hudOpen && !e.repeat) {
-        e.preventDefault();
-        openHUD(lastGlobalMouse.x, lastGlobalMouse.y);
-      }
-    });
-
-    window.addEventListener('keyup', (e) => {
-      if (e.code === 'Space' && hudOpen) {
-        e.preventDefault();
-        closeHUD();
-      }
-    });
-
-    let lastGlobalMouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     window.addEventListener('mousemove', (e) => {
-      lastGlobalMouse = { x: e.clientX, y: e.clientY };
+      lastMouseClient = { x: e.clientX, y: e.clientY };
 
       if (hudOpen) {
         const rect = viewport.getBoundingClientRect();
         const cursorX = e.clientX - rect.left;
         const cursorY = e.clientY - rect.top;
-
         const dx = cursorX - hudCenter.x;
         const dy = cursorY - hudCenter.y;
         const dist = Math.hypot(dx, dy);
@@ -527,8 +1082,7 @@
 
           let closest = null;
           let minDiff = Infinity;
-
-          hudSlices.forEach(slice => {
+          document.querySelectorAll('.hud-slice').forEach(slice => {
             const sliceAngle = parseInt(slice.dataset.angle, 10);
             let diff = Math.abs(deg - sliceAngle);
             if (diff > 180) diff = 360 - diff;
@@ -540,7 +1094,7 @@
 
           if (closest && closest.dataset.tool !== currentHoveredTool) {
             currentHoveredTool = closest.dataset.tool;
-            hudSlices.forEach(s => s.classList.toggle('active', s === closest));
+            document.querySelectorAll('.hud-slice').forEach(s => s.classList.toggle('active', s === closest));
             updateHUDReadout(currentHoveredTool);
           }
         }
@@ -552,7 +1106,7 @@
       else closeHUD();
     });
 
-    hudSlices.forEach(slice => {
+    document.querySelectorAll('.hud-slice').forEach(slice => {
       slice.addEventListener('click', (e) => {
         e.stopPropagation();
         selectTool(slice.dataset.tool);
@@ -561,34 +1115,132 @@
     });
 
     // =========================================================================
-    // SLIDERS & CONTROLS
+    // CUSTOM BRUSH LAB & SCRATCHPAD
     // =========================================================================
-    const sizeSlider = document.getElementById('size-slider');
-    const opacitySlider = document.getElementById('opacity-slider');
-    const colorPicker = document.getElementById('brush-color-picker');
-    const sizeVal = document.getElementById('size-val');
-    const opacityVal = document.getElementById('opacity-val');
+    const brushLabModal = document.getElementById('brush-lab-modal');
+    const scratchpad = document.getElementById('scratchpad-canvas');
+    const sCtx = scratchpad.getContext('2d');
+    let isScratching = false;
+    let sLastX = 0, sLastY = 0;
 
-    sizeSlider.addEventListener('input', (e) => {
-      state.size = parseInt(e.target.value, 10);
-      sizeVal.textContent = state.size;
-      updateTipPreview();
-      updateHUDReadout(state.tool);
+    document.getElementById('brush-lab-btn').addEventListener('click', () => {
+      brushLabModal.classList.toggle('hidden');
+      scratchpad.width = scratchpad.parentElement.clientWidth;
+      scratchpad.height = scratchpad.parentElement.clientHeight;
     });
 
-    opacitySlider.addEventListener('input', (e) => {
-      state.opacity = parseInt(e.target.value, 10) / 100;
-      opacityVal.textContent = `${e.target.value}%`;
-      updateHUDReadout(state.tool);
+    document.getElementById('close-brush-lab-btn').addEventListener('click', () => {
+      brushLabModal.classList.add('hidden');
     });
 
-    colorPicker.addEventListener('input', (e) => {
-      state.color = e.target.value;
-      updateTipPreview();
+    document.querySelectorAll('#tip-shape-chips .choice-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('#tip-shape-chips .choice-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        state.customBrush.tip = chip.dataset.shape;
+      });
+    });
+
+    document.querySelectorAll('#grain-chips .choice-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('#grain-chips .choice-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        state.customBrush.grain = chip.dataset.grain;
+      });
+    });
+
+    document.getElementById('streamline-slider').addEventListener('input', (e) => {
+      state.customBrush.streamline = parseInt(e.target.value, 10);
+      document.getElementById('streamline-val').textContent = `${e.target.value}%`;
+    });
+
+    document.getElementById('pressure-slider').addEventListener('input', (e) => {
+      state.customBrush.pressureScale = parseInt(e.target.value, 10);
+      const labels = ['VERY LIGHT', 'LIGHT', 'MEDIUM', 'HEAVY', 'MAX'];
+      document.getElementById('pressure-val').textContent = labels[e.target.value - 1] || 'MEDIUM';
+    });
+
+    // Scratchpad Drawing
+    scratchpad.addEventListener('mousedown', (e) => {
+      isScratching = true;
+      const rect = scratchpad.getBoundingClientRect();
+      sLastX = e.clientX - rect.left;
+      sLastY = e.clientY - rect.top;
+      sCtx.beginPath();
+      sCtx.arc(sLastX, sLastY, 4, 0, Math.PI * 2);
+      sCtx.fillStyle = state.color;
+      sCtx.fill();
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isScratching) return;
+      const rect = scratchpad.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      sCtx.strokeStyle = state.color;
+      sCtx.lineWidth = 4 * (state.customBrush.pressureScale / 2);
+      sCtx.lineCap = state.customBrush.tip === 'chisel' ? 'square' : 'round';
+      sCtx.beginPath();
+      sCtx.moveTo(sLastX, sLastY);
+      sCtx.lineTo(x, y);
+      sCtx.stroke();
+      sLastX = x;
+      sLastY = y;
+    });
+
+    window.addEventListener('mouseup', () => { isScratching = false; });
+    document.getElementById('clear-scratchpad-btn').addEventListener('click', () => {
+      sCtx.clearRect(0, 0, scratchpad.width, scratchpad.height);
+    });
+
+    document.getElementById('save-brush-btn').addEventListener('click', () => {
+      selectTool('custom');
+      brushLabModal.classList.add('hidden');
+      alert(`Saved and armed custom brush: "${document.getElementById('custom-brush-name').value}"!`);
     });
 
     // =========================================================================
-    // 2D ANIMATION ENGINE (Canvas-to-Canvas Buffer)
+    // LAYERS & BLEND MODES UI
+    // =========================================================================
+    const layersPanel = document.getElementById('layers-panel');
+    document.getElementById('layers-btn').addEventListener('click', () => {
+      layersPanel.classList.toggle('hidden');
+      renderLayersList();
+    });
+
+    document.getElementById('close-layers-btn').addEventListener('click', () => {
+      layersPanel.classList.add('hidden');
+    });
+
+    document.getElementById('layer-blend-select').addEventListener('change', (e) => {
+      const active = layers[state.activeLayerIndex];
+      if (active) {
+        active.blend = e.target.value;
+        renderLayersList();
+        renderLayersComposite();
+      }
+    });
+
+    document.getElementById('add-layer-btn').addEventListener('click', () => {
+      const newId = layers.length + 1;
+      const newBuf = document.createElement('canvas');
+      newBuf.width = width;
+      newBuf.height = height;
+
+      layers.push({
+        id: newId,
+        name: `Layer ${newId}`,
+        visible: true,
+        blend: 'source-over',
+        buffer: newBuf
+      });
+      state.activeLayerIndex = layers.length - 1;
+      renderLayersList();
+    });
+
+    // =========================================================================
+    // 2D ANIMATION ENGINE & ONION SKINNING
     // =========================================================================
     const animDock = document.getElementById('animation-dock');
     const frameStrip = document.getElementById('frame-strip');
@@ -607,99 +1259,75 @@
       renderFrameStrip();
     }
 
-    dockCloseBtn.addEventListener('click', () => {
-      animDock.classList.add('collapsed');
-    });
-
-    function saveCurrentFrameToBuffer() {
-      if (width <= 0 || height <= 0) return;
-
-      let buffer = frameCanvases[state.currentFrameIndex];
-      if (!buffer) {
-        buffer = document.createElement('canvas');
-        frameCanvases[state.currentFrameIndex] = buffer;
-      }
-      buffer.width = width;
-      buffer.height = height;
-      const bCtx = buffer.getContext('2d');
-      bCtx.clearRect(0, 0, width, height);
-      bCtx.drawImage(drawingCanvas, 0, 0);
-
-      renderFrameStrip();
-      renderOnionSkin();
-    }
-
-    function restoreCurrentFrameFromBuffer() {
-      drawCtx.clearRect(0, 0, width, height);
-      const buffer = frameCanvases[state.currentFrameIndex];
-      if (buffer) {
-        drawCtx.drawImage(buffer, 0, 0);
-      }
-      renderOnionSkin();
-    }
+    dockCloseBtn.addEventListener('click', () => animDock.classList.add('collapsed'));
 
     function renderOnionSkin() {
       onionCtx.clearRect(0, 0, width, height);
       if (!state.onionSkin || state.currentFrameIndex === 0) return;
-
-      const prevBuffer = frameCanvases[state.currentFrameIndex - 1];
-      if (prevBuffer) {
-        onionCtx.drawImage(prevBuffer, 0, 0);
+      const prevFrame = animationFrames[state.currentFrameIndex - 1];
+      if (prevFrame && prevFrame[0]) {
+        onionCtx.drawImage(prevFrame[0].buffer, 0, 0);
       }
     }
 
     function renderFrameStrip() {
       frameStrip.innerHTML = '';
-      const total = Math.max(1, frameCanvases.length);
+      const total = Math.max(1, animationFrames.length);
       for (let i = 0; i < total; i++) {
         const cell = document.createElement('div');
         cell.className = `frame-cell ${i === state.currentFrameIndex ? 'active' : ''}`;
         cell.innerHTML = `<span class="frame-num">${String(i + 1).padStart(2, '0')}</span>`;
         cell.addEventListener('click', () => {
-          saveCurrentFrameToBuffer();
           state.currentFrameIndex = i;
-          restoreCurrentFrameFromBuffer();
+          restoreCurrentFrame();
           renderFrameStrip();
         });
         frameStrip.appendChild(cell);
       }
     }
 
-    addFrameBtn.addEventListener('click', () => {
-      saveCurrentFrameToBuffer();
-      const emptyBuffer = document.createElement('canvas');
-      emptyBuffer.width = width;
-      emptyBuffer.height = height;
-      frameCanvases.push(emptyBuffer);
-      state.currentFrameIndex = frameCanvases.length - 1;
-      drawCtx.clearRect(0, 0, width, height);
-      renderFrameStrip();
+    function restoreCurrentFrame() {
+      const frameLayers = animationFrames[state.currentFrameIndex];
+      if (frameLayers) {
+        layers = frameLayers;
+        renderLayersComposite();
+        renderLayersList();
+      }
       renderOnionSkin();
+    }
+
+    addFrameBtn.addEventListener('click', () => {
+      const newFrameLayers = [
+        { id: 1, name: 'Layer 1', visible: true, blend: 'source-over', buffer: document.createElement('canvas') }
+      ];
+      newFrameLayers[0].buffer.width = width;
+      newFrameLayers[0].buffer.height = height;
+
+      animationFrames.push(newFrameLayers);
+      state.currentFrameIndex = animationFrames.length - 1;
+      restoreCurrentFrame();
+      renderFrameStrip();
     });
 
     dupFrameBtn.addEventListener('click', () => {
-      saveCurrentFrameToBuffer();
-      const current = frameCanvases[state.currentFrameIndex];
-      const dup = document.createElement('canvas');
-      dup.width = width;
-      dup.height = height;
-      if (current) dup.getContext('2d').drawImage(current, 0, 0);
-
-      frameCanvases.splice(state.currentFrameIndex + 1, 0, dup);
+      const current = layers.map(l => {
+        const copy = document.createElement('canvas');
+        copy.width = width;
+        copy.height = height;
+        if (l.buffer) copy.getContext('2d').drawImage(l.buffer, 0, 0);
+        return { ...l, buffer: copy };
+      });
+      animationFrames.splice(state.currentFrameIndex + 1, 0, current);
       state.currentFrameIndex++;
-      restoreCurrentFrameFromBuffer();
+      restoreCurrentFrame();
       renderFrameStrip();
     });
 
     delFrameBtn.addEventListener('click', () => {
-      if (frameCanvases.length <= 1) {
-        drawCtx.clearRect(0, 0, width, height);
-        saveCurrentFrameToBuffer();
-        return;
-      }
-      frameCanvases.splice(state.currentFrameIndex, 1);
+      if (animationFrames.length <= 1) return;
+      animationFrames.splice(state.currentFrameIndex, 1);
       state.currentFrameIndex = Math.max(0, state.currentFrameIndex - 1);
-      restoreCurrentFrameFromBuffer();
+      restoreCurrentFrame();
       renderFrameStrip();
     });
 
@@ -722,14 +1350,14 @@
     });
 
     function startPlayback() {
-      if (frameCanvases.length <= 1) return;
+      if (animationFrames.length <= 1) return;
       state.isPlaying = true;
       playBtn.textContent = '⏹ STOP';
       playBtn.style.background = '#FF4757';
 
       playTimer = setInterval(() => {
-        state.currentFrameIndex = (state.currentFrameIndex + 1) % frameCanvases.length;
-        restoreCurrentFrameFromBuffer();
+        state.currentFrameIndex = (state.currentFrameIndex + 1) % animationFrames.length;
+        restoreCurrentFrame();
         renderFrameStrip();
       }, 1000 / state.fps);
     }
@@ -752,17 +1380,16 @@
     const glowToggleBtn = document.getElementById('glow-toggle-btn');
     const gridToggleBtn = document.getElementById('grid-toggle-btn');
     const swatches = document.querySelectorAll('.swatch-btn');
-    const slidersDock = document.getElementById('floating-sliders');
 
     fontToggleBtn.addEventListener('click', () => {
       if (state.font === 'helvetica') {
         state.font = 'retro';
         document.documentElement.setAttribute('data-font', 'retro');
-        fontLabel.textContent = 'FONT: 8-BIT ARCADE';
+        fontLabel.textContent = '8-BIT';
       } else {
         state.font = 'helvetica';
         document.documentElement.setAttribute('data-font', 'helvetica');
-        fontLabel.textContent = 'FONT: HELVETICA';
+        fontLabel.textContent = 'HELVETICA';
       }
     });
 
@@ -791,6 +1418,7 @@
       gridToggleBtn.textContent = state.grid ? 'GRID: ON' : 'GRID: OFF';
     });
 
+    // Workspace Mode Tabs
     const modeBtns = document.querySelectorAll('.mode-btn');
     modeBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -800,33 +1428,33 @@
 
         if (state.mode === 'zen') {
           animDock.classList.add('collapsed');
-          slidersDock.classList.add('hidden');
         } else if (state.mode === 'studio') {
           animDock.classList.add('collapsed');
-          slidersDock.classList.remove('hidden');
+          layersPanel.classList.remove('hidden');
         } else if (state.mode === 'anim') {
           animDock.classList.remove('collapsed');
-          slidersDock.classList.remove('hidden');
           renderFrameStrip();
         }
       });
     });
 
+    // Clear Canvas
     document.getElementById('clear-btn').addEventListener('click', () => {
-      if (confirm('Clear current canvas frame?')) {
-        drawCtx.clearRect(0, 0, width, height);
-        saveCurrentFrameToBuffer();
+      if (confirm('Clear current active layer?')) {
+        const active = getActiveLayerCtx();
+        active.clearRect(0, 0, width, height);
+        renderLayersComposite();
+        saveHistory();
       }
     });
 
-    // Initial setup
+    // Initialization
     window.addEventListener('resize', resize);
     resize();
     selectTool('pencil');
     updateTipPreview();
-    renderFrameStrip();
 
-    console.log("⚡ ArcadeFlow 2D Ready!");
+    console.log("⚡ ArcadeFlow 2D Pro Engine Loaded Successfully.");
   })();
   </script>
 </body>
